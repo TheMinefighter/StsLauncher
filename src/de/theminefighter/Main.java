@@ -41,15 +41,17 @@ public class Main {
             nargs[i]=((Element) argumentTags.item(i)).getTextContent();
         }
         NodeList jars = resources.getElementsByTagName("jar");
+        URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+        Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
+method.setAccessible(true);
         URL[] downloads= new URL[jars.getLength()];
         for (int i = 0; i < jars.getLength(); i++) {
             Element jar= (Element) jars.item(i);
             downloads[i]= new URL(codebase+"/"+jar.getAttribute("href"));
+            method.invoke(sysloader, new Object[]{downloads[i]});
         }
-        URLClassLoader urlClassLoader = URLClassLoader.newInstance(downloads);
-        Class<?> loadedClass = urlClassLoader.loadClass(mainClassName);
+        Class<?> loadedClass = sysloader.loadClass(mainClassName);
         Method mainMethod = loadedClass.getDeclaredMethod("main",String[].class);
         mainMethod.invoke(null,new Object[]{nargs});
-        // write your code here
     }
 }
