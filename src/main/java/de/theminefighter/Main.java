@@ -19,6 +19,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         if (args.length!=1)
             throw new Exception("A jnlp file must be provided to launch it");
+        boolean oldJava=System.getProperty("java.version").startsWith("1.");
 //load jnlp structure
         Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(args[0])).getDocumentElement();
         String codebase = root.getAttribute("codebase");
@@ -38,15 +39,25 @@ public class Main {
             launchArgs[i]= argumentTags.item(i).getTextContent();
         }
         //load sts code to system classpath
+        URLClassLoader finalClassLoader;
         NodeList jars = resources.getElementsByTagName("jar");
-        URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-        method.setAccessible(true);
+        URL[] urls= new URL[jars.getLength()];
         for (int i = 0; i < jars.getLength(); i++) {
             Element jar= (Element) jars.item(i);
-            method.invoke(sysloader,new URL(codebase+"/"+jar.getAttribute("href")));
+            URL href = new URL(codebase + "/" + jar.getAttribute("href"));
+            urls[i]=href;
         }
-        Class<?> loadedClass = sysloader.loadClass(mainClassName);
+        if (oldJava) {
+            finalClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+            method.setAccessible(true);
+            for (URL url : urls) {
+                method.invoke(finalClassLoader, url);
+            }
+        } else {
+            finalClassLoader= URLClassLoader.newInstance(urls, ClassLoader.getSystemClassLoader());}
+
+        Class<?> loadedClass = finalClassLoader.loadClass(mainClassName);
         Method mainMethod = loadedClass.getDeclaredMethod("main",String[].class);
         //run sts
         mainMethod.invoke(null,new Object[]{launchArgs});
