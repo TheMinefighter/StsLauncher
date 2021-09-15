@@ -38,15 +38,18 @@ public class Main {
             launchArgs[i]= argumentTags.item(i).getTextContent();
         }
         //load sts code to system classpath
+
+        ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+
         NodeList jars = resources.getElementsByTagName("jar");
-        URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-        method.setAccessible(true);
+        URL[] urls= new URL[jars.getLength()];
         for (int i = 0; i < jars.getLength(); i++) {
             Element jar= (Element) jars.item(i);
-            method.invoke(sysloader,new URL(codebase+"/"+jar.getAttribute("href")));
+            URL href = new URL(codebase + "/" + jar.getAttribute("href"));
+            urls[i]=href;
         }
-        Class<?> loadedClass = sysloader.loadClass(mainClassName);
+        URLClassLoader ucl= URLClassLoader.newInstance(urls,systemClassLoader);
+        Class<?> loadedClass = ucl.loadClass(mainClassName);
         Method mainMethod = loadedClass.getDeclaredMethod("main",String[].class);
         //run sts
         mainMethod.invoke(null,new Object[]{launchArgs});
