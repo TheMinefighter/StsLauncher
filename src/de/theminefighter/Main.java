@@ -18,13 +18,9 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         if (args.length!=1)
-            throw new Exception("Es muss exakt 1 Argument bereitgestellt werden: Eine gültige jnlp Datei.");
+            throw new Exception("A jnlp file must be provided to launch it");
 
-        DocumentBuilderFactory dBfactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = dBfactory.newDocumentBuilder();
-        Document document = builder.parse(new File(args[0]));
-        document.getDocumentElement().normalize();
-        Element root = document.getDocumentElement();
+        Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(args[0])).getDocumentElement();
         String codebase = root.getAttribute("codebase");
         Element resources = (Element) root.getElementsByTagName("resources").item(0);
         Element appDesc = (Element) root.getElementsByTagName("application-desc").item(0);
@@ -36,22 +32,20 @@ public class Main {
             System.setProperty(prop.getAttribute("name"),prop.getAttribute("value"));
         }
         NodeList argumentTags = appDesc.getElementsByTagName("argument");
-        String[] nargs=new String[argumentTags.getLength()];
+        String[] launchArgs=new String[argumentTags.getLength()];
         for (int i = 0; i < argumentTags.getLength(); i++) {
-            nargs[i]=((Element) argumentTags.item(i)).getTextContent();
+            launchArgs[i]= argumentTags.item(i).getTextContent();
         }
         NodeList jars = resources.getElementsByTagName("jar");
         URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
-method.setAccessible(true);
-        URL[] downloads= new URL[jars.getLength()];
+        Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+        method.setAccessible(true);
         for (int i = 0; i < jars.getLength(); i++) {
             Element jar= (Element) jars.item(i);
-            downloads[i]= new URL(codebase+"/"+jar.getAttribute("href"));
-            method.invoke(sysloader, new Object[]{downloads[i]});
+            method.invoke(sysloader,new URL(codebase+"/"+jar.getAttribute("href")));
         }
         Class<?> loadedClass = sysloader.loadClass(mainClassName);
         Method mainMethod = loadedClass.getDeclaredMethod("main",String[].class);
-        mainMethod.invoke(null,new Object[]{nargs});
+        mainMethod.invoke(null,new Object[]{launchArgs});
     }
 }
