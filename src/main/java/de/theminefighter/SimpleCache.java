@@ -3,11 +3,15 @@ package de.theminefighter;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -33,11 +37,20 @@ public class SimpleCache implements ResourceCache {
         return new File(cacheRoot.toString(), toOsCompliantFileName(remoteResource));
 
     }
+    public static String toSHA224(String data) {
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        }
+        catch(NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        return new BigInteger(1,md.digest(data.getBytes(StandardCharsets.UTF_8))).toString(32);
+    }
 
     private String toOsCompliantFileName(URL remoteResource) {
-        return remoteResource.toString().replace("/", "-..-")
-                .replace("[", "(").replaceAll("]", "(")
-                .replace(":", "-...-");
+        return toSHA224(remoteResource.toString());
     }
 
     private void ensureCached(URL remoteResource, File localCache, boolean noUpdate) throws IOException {
