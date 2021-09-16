@@ -52,6 +52,7 @@ public class SimpleCache implements ResourceCache {
                 return;
             case 200:
                 java.nio.file.Files.copy(connection.getInputStream(), localCache.toPath(), REPLACE_EXISTING);
+                break;
             default:
                 throw new IOException("Error fetching " + remoteResource);
         }

@@ -18,6 +18,7 @@ import java.net.URLClassLoader;
 public class Main {
 
     public static void main(String[] args) throws Exception {
+        ResourceCache cache= new SimpleCache();
         if (args.length!=1)
             throw new Exception("A jnlp file must be provided to launch it");
 
@@ -47,6 +48,9 @@ public class Main {
             Element jar= (Element) jars.item(i);
             URL href = new URL(codebase + "/" + jar.getAttribute("href"));
             urls[i]=href;
+        }
+        for (int i = 0; i < urls.length; i++) {
+            urls[i]=cache.get(urls[i], false);
         }
         URLClassLoader finalClassLoader = makeClassLoaderFromUrls(urls);
 
