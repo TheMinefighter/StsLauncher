@@ -40,7 +40,7 @@ public class SimpleCache implements ResourceCache {
     public static String toSHA224(String data) {
         MessageDigest md = null;
         try {
-            md = MessageDigest.getInstance("SHA-1");
+            md = MessageDigest.getInstance("SHA-224");
         }
         catch(NoSuchAlgorithmException e) {
             e.printStackTrace();
