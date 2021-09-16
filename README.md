@@ -8,8 +8,7 @@ Run `java -jar PathToStsLauncher.jar PathToJnlp.jnlp`
 If you have multiple Java versions on your computer you will have to specify the full path for java.
 You can create a shortcut to make this easier. The automatic shortcut creation through javax.jnlp will currently fail.
 # Problems
-Launch times of about 5 seconds at startup (caching implementation is planned)
-
+None that I am aware of as of version 1.1.1
 # Other stuff
 If I have too much time in the future I might build a CI pipeline for this.
 
