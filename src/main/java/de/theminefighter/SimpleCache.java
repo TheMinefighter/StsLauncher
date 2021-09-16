@@ -2,14 +2,9 @@ package de.theminefighter;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,9 +18,9 @@ public class SimpleCache implements ResourceCache {
         if (!Files.exists(cacheRoot)) Files.createDirectory(cacheRoot.toAbsolutePath());
     }
 
-    public URL updateAndGet(URL remoteResource) throws IOException {
+    public URL get(URL remoteResource, boolean noUpdate) throws IOException {
         File f = getFileByUrl(remoteResource);
-        UpdateCache(remoteResource, f);
+        ensureCached(remoteResource, f, noUpdate);
         try {
             return f.toURI().toURL();
         } catch (MalformedURLException e) {
@@ -45,9 +40,10 @@ public class SimpleCache implements ResourceCache {
                 .replace(":", "-...-");
     }
 
-    private void UpdateCache(URL remoteResource, File localCache) throws IOException {
+    private void ensureCached(URL remoteResource, File localCache, boolean noUpdate) throws IOException {
         HttpsURLConnection connection = (HttpsURLConnection) remoteResource.openConnection();
         if (localCache.exists()) {
+            if (noUpdate) return;
             connection.setIfModifiedSince(localCache.lastModified());
         }
         connection.connect();
