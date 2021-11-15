@@ -1,4 +1,4 @@
-package de.theminefighter;
+package de.theminefighter.StsLauncher;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
@@ -22,14 +22,13 @@ public class SimpleCache implements ResourceCache {
         if (!Files.exists(cacheRoot)) Files.createDirectory(cacheRoot.toAbsolutePath());
     }
 
-    public URL get(URL remoteResource, boolean noUpdate) throws IOException {
+    public URL get(URL remoteResource, boolean noUpdate){
         File f = getFileByUrl(remoteResource);
-        ensureCached(remoteResource, f, noUpdate);
         try {
+            ensureCached(remoteResource, f, noUpdate);
             return f.toURI().toURL();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            throw new RuntimeException();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

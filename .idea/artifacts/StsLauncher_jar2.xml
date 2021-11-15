@@ -45,6 +45,7 @@
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/jakarta/jws/jakarta.jws-api/3.0.0/jakarta.jws-api-3.0.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/sun/xml/fastinfoset/FastInfoset/1.2.15/FastInfoset-1.2.15.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jvnet/mimepull/mimepull/1.9.10/mimepull-1.9.10.jar" path-in-jar="/" />
+      <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources" />
     </root>
   </artifact>
 </component>
