@@ -2,179 +2,130 @@ package de.theminefighter.StsLauncher;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Paths;
-import java.util.Enumeration;
+import java.security.CodeSource;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.stream.IntStream;
 
 
 public class Main {
     //used for offline debugging
     static final boolean offline = false;
 
-    private static String getJavaPath() throws IOException {
-
-        File linuxAttempt = Paths.get(System.getProperty("java.home"), "bin", "java").toFile();
-        if (linuxAttempt.exists()) return linuxAttempt.toString();
-        return Paths.get(System.getProperty("java.home"), "bin", "java.exe").toFile().toString();
+    private static String getJavaPath() {
+        File winAttempt = Paths.get(System.getProperty("java.home"), "bin", "java.exe").toFile();
+        if (winAttempt.exists()) return winAttempt.toString();
+        return Paths.get(System.getProperty("java.home"), "bin", "java").toFile().toString();
     }
 
     public static void main(String[] args) throws Exception {
         if (args.length == 0)
             throw new Exception("A jnlp file must be provided to launch it");
-        System.out.println("use --show-license-files as second argument to show license files of all libraries used");
-        boolean slf = false;
-        boolean dl = false;
-        if (args.length > 1) {
-            slf = args[1].equals("--show-license-files");
-            dl = args[1].equals("--direct-launch");
-        }
 
-//load jnlp structure
-        Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(args[0])).getDocumentElement();
+        boolean slf = args.length > 1 && args[1].equals("--show-license-files");
+        if (!slf)
+            System.out.println("use --show-license-files as second argument to show license files of all libraries used");
+        ProcessBuilder pb = new ProcessBuilder(prepareLaunch(args[0], slf));
+        Map<String, String> environment = pb.environment();
+        environment.clear();
+        environment.putAll(System.getenv());
+        pb.inheritIO();
+        pb.start().waitFor();
+
+    }
+
+    private static String[] prepareLaunch(String arg, boolean slf) throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
+        //load jnlp structure
+        Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(arg)).getDocumentElement();
         String codebase = root.getAttribute("codebase");
         Element resources = (Element) root.getElementsByTagName("resources").item(0);
         Element appDesc = (Element) root.getElementsByTagName("application-desc").item(0);
         String mainClassName = appDesc.getAttribute("main-class");
 //load server addresses and other stuff from jnlp to system properties
-if (dl) {
-    PerformLaunch(resources, appDesc, mainClassName);
-} else {
-    List<URL> jarsToLoad = getJarsForLaunch(codebase, resources);
-    if (slf) {showLicenseFiles(jarsToLoad);}
-    URLClassLoader finalClassLoader = makeClassLoaderFromUrls(jarsToLoad.toArray(new URL[0]));
-}
-
-    }
-
-    private static void showLicenseFiles(List<URL> urls) {
-        for (URL url :
-                urls) {
-            try {
-                ZipFile zf=new ZipFile(url.getPath());
-                Enumeration<? extends ZipEntry> entries = zf.entries();
-
-                while(entries.hasMoreElements()){
-                    ZipEntry entry = entries.nextElement();
-                    if (entry.isDirectory()) continue;
-                    if (entry.getName().toLowerCase().contains("license")) {
-                        InputStream lcs = zf.getInputStream(entry);
-                        InputStreamReader lcsr =  new InputStreamReader(lcs);
-                        BufferedReader blcsr=new BufferedReader(lcsr);
-                        String line;
-                        while ((line = blcsr.readLine()) != null) {
-                            System.out.println(line);
-                        }
-                        System.out.println("=============================================");
-                        blcsr.close();
-                        lcsr.close();
-                        lcs.close();
-                    }
-                }
-                zf.close();
-            } catch (IOException e) {
-                System.out.println("An error occurred whilst looking for License files in " + url.toString());
-            }
+        List<URL> jarsForLaunch = getJarsForLaunch(codebase, resources);
+        if (slf) {
+            LibManager.showLicenseFiles(jarsForLaunch);
         }
+
+        return makeArgs(resources, appDesc, mainClassName, jarsForLaunch);
     }
 
-    private static List<URL> getJarsForLaunch(String codebase, Element resources) throws IOException {
-        ResourceCache cache = new SimpleCache();
-        InputStream mavenStream = ClassLoader.getSystemClassLoader().getResourceAsStream("de/theminefighter/StsLauncher/MavenList.csv");
-        Stream<String> lines = new BufferedReader(new InputStreamReader(mavenStream)).lines();
-        List<URL> jarsToLoad = lines.map(Main::makeMvnUrl).map(x -> cache.get(x, true)).collect(Collectors.toList());
-
-        //load sts code
-
-        NodeList jars = resources.getElementsByTagName("jar");
-        for (int i = 0; i < jars.getLength(); i++) {
-            Element jar = (Element) jars.item(i);
-            URL href = new URL(codebase + "/" + jar.getAttribute("href"));
-            URL cached = cache.get(href, offline);
-            jarsToLoad.add(cached);
-        }
-        return jarsToLoad;
-    }
-
-    private static void PerformLaunch(Element resources, Element appDesc, String mainClassName) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        NodeList props = resources.getElementsByTagName("property");
-        ApplyProperties(props);
+    private static String[] makeArgs(Element resources, Element appDesc, String mainClassName, List<URL> jarsForLaunch) throws URISyntaxException {
+        List<String> javaArgs = new LinkedList<>();
+        javaArgs.add(getJavaPath());
+        javaArgs.add("-verbose:class");
+        javaArgs.add("-cp");
+        javaArgs.add(makeCPString(jarsForLaunch));
+        Map<String, String> launchProps = makeJVMProps(resources);
+        launchProps.entrySet().stream().map(lp -> String.format("-D%s\"%s\"", lp.getKey(), lp.getValue())).forEach(javaArgs::add);
         //load arguments for main method of sts
+        javaArgs.add(mainClassName);
         NodeList argumentTags = appDesc.getElementsByTagName("argument");
-        String[] launchArgs = new String[argumentTags.getLength()];
-        for (int i = 0; i < argumentTags.getLength(); i++) {
-            launchArgs[i] = argumentTags.item(i).getTextContent();
-        }
-        Class<?> loadedClass = ClassLoader.getSystemClassLoader().loadClass(mainClassName);
-        Method mainMethod = loadedClass.getDeclaredMethod("main", String[].class);
-        //run sts
-        mainMethod.invoke(null, new Object[]{launchArgs});
+        IntStream.range(0, argumentTags.getLength()).mapToObj(i -> argumentTags.item(i).getTextContent()).forEach(javaArgs::add);
+
+        return javaArgs.toArray(new String[0]);
     }
 
-    private static void ApplyProperties(NodeList props) {
-        for (int i = 0; i < props.getLength(); i++) {
-            Element prop = (Element) props.item(i);
-            System.setProperty(prop.getAttribute("name"), prop.getAttribute("value"));
-        }
+    private static String makeCPString(List<URL> jarsForLaunch) throws URISyntaxException {
+        List<String> classPathParts = jarsForLaunch.stream().map(URL::getPath).collect(Collectors.toList());
+        classPathParts.add(System.getProperty("java.class.path"));
+        classPathParts.add(makeCPStringFromClass(Main.class));
+        return String.join(":", classPathParts);
     }
 
-    private static URL makeMvnUrl(String mvnCsvLine) {
-        String[] split = mvnCsvLine.split(",");
-
-        try {
-            return new URL(String.format("https://repo.maven.apache.org/maven2/%s/%s/%s/%s-%s.jar",
-                    split[0].replace('.', '/'), split[1], split[2], split[1], split[2]));
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    private static URLClassLoader makeClassLoaderFromUrls(URL[] urls) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        boolean oldJava = System.getProperty("java.version").startsWith("1.");
-        URLClassLoader finalClassLoader;
-        if (oldJava) {
-            finalClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            method.setAccessible(true);
-            for (URL url : urls) {
-                method.invoke(finalClassLoader, url);
-            }
-        } else {
-            finalClassLoader = URLClassLoader.newInstance(urls, ClassLoader.getSystemClassLoader().getParent());
-            try {
-                Field sclParentField = ClassLoader.class.getDeclaredField("parent");
-                sclParentField.setAccessible(true);
-
-                Field modifiersField = Field.class.getDeclaredField("modifiers");
-                modifiersField.setAccessible(true);
-                modifiersField.setInt(sclParentField, sclParentField.getModifiers() & ~Modifier.FINAL);
-
-                sclParentField.set(ClassLoader.getSystemClassLoader(), finalClassLoader);
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
+    private static String makeCPStringFromClass(Class<?> aClass) throws URISyntaxException {
+        CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
+        if (codeSource == null) {
+            String path = aClass.getResource(aClass.getSimpleName() + ".class").getPath();
+            if (path.contains("!")) {
+                return new URI(path.split("!")[0]).getPath();
+            } else {
+                throw new RuntimeException("Could not locate the location from which this program was launched");
             }
         }
-        //Thread.currentThread().setContextClassLoader(finalClassLoader);
-        try {
-            ClassLoader.getSystemClassLoader().loadClass("javax.xml.ws.Service");
-            ClassLoader.getSystemClassLoader().loadClass("javax.jnlp.SingleInstanceListener");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        else {
+                return codeSource.getLocation().getPath();
+            }
         }
-        return finalClassLoader;
-    }
+
+        private static Map<String, String> makeJVMProps (Element resources){
+            Map<String, String> launchProps = System.getProperties().stringPropertyNames()
+                    .stream().collect(Collectors.toMap(propN -> propN, System::getProperty, (a, b) -> b));
+            NodeList props = resources.getElementsByTagName("property");
+            IntStream.range(0, props.getLength()).mapToObj(i1 -> (Element) props.item(i1))
+                    .forEach(prop -> launchProps.put(prop.getAttribute("name"), prop.getAttribute("value")));
+            launchProps.remove("java.class.path");
+            return launchProps;
+        }
+
+
+        private static List<URL> getJarsForLaunch (String codebase, Element resources) throws IOException {
+            ResourceCache cache = new SimpleCache();
+            List<URL> jarsToLoad = (System.getProperty("java.version").startsWith("1.")) ? new LinkedList<>() : LibManager.makeLibUrls(cache);
+
+            //load sts code
+
+            NodeList jars = resources.getElementsByTagName("jar");
+            for (int i = 0; i < jars.getLength(); i++) {
+                Element jar = (Element) jars.item(i);
+                URL href = new URL(codebase + "/" + jar.getAttribute("href"));
+                URL cached = cache.get(href, offline);
+                jarsToLoad.add(cached);
+            }
+            return jarsToLoad;
+        }
+
+
 }
