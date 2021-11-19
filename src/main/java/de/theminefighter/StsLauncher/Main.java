@@ -11,11 +11,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.security.CodeSource;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -23,6 +22,8 @@ import java.util.stream.IntStream;
 public class Main {
     //used for offline debugging
     static final boolean offline = false;
+    private static final boolean forwardProps=false;
+    private static final boolean forwardEnv=false;
 
     private static String getJavaPath() {
         File winAttempt = Paths.get(System.getProperty("java.home"), "bin", "java.exe").toFile();
@@ -38,11 +39,15 @@ public class Main {
         if (!slf)
             System.out.println("use --show-license-files as second argument to show license files of all libraries used");
         ProcessBuilder pb = new ProcessBuilder(prepareLaunch(args[0], slf));
-        Map<String, String> environment = pb.environment();
-        environment.clear();
-        environment.putAll(System.getenv());
+        if (forwardEnv) {
+            Map<String, String> environment = pb.environment();
+            environment.clear();
+            environment.putAll(System.getenv());
+        }
         pb.inheritIO();
-        pb.start().waitFor();
+
+        Process STSProcess = pb.start();
+        STSProcess.waitFor();
 
     }
 
@@ -59,17 +64,20 @@ public class Main {
             LibManager.showLicenseFiles(jarsForLaunch);
         }
 
-        return makeArgs(resources, appDesc, mainClassName, jarsForLaunch);
+        String[] javaArgs = makeArgs(resources, appDesc, mainClassName, jarsForLaunch);
+        return javaArgs;
+        //return new String[]{"/bin/sh","-c",String.join(" ",javaArgs)};
     }
 
     private static String[] makeArgs(Element resources, Element appDesc, String mainClassName, List<URL> jarsForLaunch) throws URISyntaxException {
         List<String> javaArgs = new LinkedList<>();
         javaArgs.add(getJavaPath());
-        javaArgs.add("-verbose:class");
+       // javaArgs.add("-verbose:class");
+        javaArgs.add("-verbose:jni");
         javaArgs.add("-cp");
         javaArgs.add(makeCPString(jarsForLaunch));
         Map<String, String> launchProps = makeJVMProps(resources);
-        launchProps.entrySet().stream().map(lp -> String.format("-D%s\"%s\"", lp.getKey(), lp.getValue())).forEach(javaArgs::add);
+        launchProps.entrySet().stream().map(lp -> String.format("-D%s=%s", lp.getKey(), lp.getValue())).forEach(javaArgs::add);
         //load arguments for main method of sts
         javaArgs.add(mainClassName);
         NodeList argumentTags = appDesc.getElementsByTagName("argument");
@@ -101,12 +109,13 @@ public class Main {
         }
 
         private static Map<String, String> makeJVMProps (Element resources){
-            Map<String, String> launchProps = System.getProperties().stringPropertyNames()
-                    .stream().collect(Collectors.toMap(propN -> propN, System::getProperty, (a, b) -> b));
+            Map<String, String> launchProps = forwardProps ? System.getProperties().stringPropertyNames()
+                    .stream().collect(Collectors.toMap(propN -> propN, System::getProperty, (a, b) -> b)) : new HashMap<>();
             NodeList props = resources.getElementsByTagName("property");
             IntStream.range(0, props.getLength()).mapToObj(i1 -> (Element) props.item(i1))
                     .forEach(prop -> launchProps.put(prop.getAttribute("name"), prop.getAttribute("value")));
             launchProps.remove("java.class.path");
+            launchProps.put("file.encoding","UTF-8");
             return launchProps;
         }
 
