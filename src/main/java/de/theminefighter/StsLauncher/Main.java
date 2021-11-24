@@ -8,23 +8,37 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.file.Paths;
-import java.security.CodeSource;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
 public class Main {
-    //used for offline debugging
-    static final boolean offline = false;
-    private static final boolean forwardProps = false;
-    private static final boolean forwardEnv = false;
-
+    /**
+     * used for offline debugging
+     */
+    private static final boolean offline = false;
+    /**
+     * Whether to forward JVM props to the new STS process
+     */
+    private static final boolean forwardProps = true;
+    /**
+     * Whether to forward the env of this process to the new java process
+     */
+    private static final boolean forwardEnv = true;
+    /**
+     * Whether to forward the IO of the new STS process
+     */
+    private static final boolean forwardSTSProcessIO = false;
+    /**
+     * Whether to set the new JVM Process to verbose output
+     */
+    private static final boolean verboseJVM = false;
     /**
      * Determines the path of the java executable running
      *
@@ -50,11 +64,14 @@ public class Main {
             environment.clear();
             environment.putAll(System.getenv());
         }
-        pb.inheritIO();
+        if (forwardSTSProcessIO) {
+            pb.inheritIO();
+        }
 
         Process STSProcess = pb.start();
-        STSProcess.waitFor();
-
+        if (forwardSTSProcessIO) {
+            STSProcess.waitFor();
+        }
     }
 
     private static String[] prepareLaunch(String arg, boolean slf) throws SAXException, IOException, ParserConfigurationException {
@@ -77,8 +94,10 @@ public class Main {
     private static String[] makeArgs(Element resources, Element appDesc, String mainClassName, List<URL> jarsForLaunch) {
         List<String> javaArgs = new LinkedList<>();
         javaArgs.add(getJavaPath());
-        // javaArgs.add("-verbose:class");
-        // javaArgs.add("-verbose:jni");
+        if (verboseJVM) {
+            javaArgs.add("-verbose:class");
+            javaArgs.add("-verbose:jni");
+        }
         javaArgs.add("-cp");
         javaArgs.add(makeCPString(jarsForLaunch));
         Map<String, String> launchProps = makeJVMProps(resources);
