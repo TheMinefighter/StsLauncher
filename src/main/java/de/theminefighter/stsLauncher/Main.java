@@ -19,11 +19,11 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         if (args.length == 0)
-            throw new Exception("A jnlp file must be provided to launch it");
+            throw new Exception("A jnlp file must be provided for launch");
 
         boolean slf = args.length > 1 && args[1].equals("--show-license-files");
         if (!slf)
-            System.out.println("use --show-license-files as second argument to show license files of all libraries used");
+            System.out.println("Use --show-license-files as second argument to show the license files of all libraries used.");
         ProcessBuilder pb = new ProcessBuilder(prepareLaunch(args[0], slf));
         makeEnv(pb.environment());
         if (Flags.forwardSTSProcessIO) {
