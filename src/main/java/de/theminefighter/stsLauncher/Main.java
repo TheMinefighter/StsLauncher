@@ -14,8 +14,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static de.theminefighter.stsLauncher.Flags.forwardSTSProcessIO;
-
 
 public class Main {
 
@@ -32,12 +30,12 @@ public class Main {
             environment.clear();
             environment.putAll(System.getenv());
         }
-        if (forwardSTSProcessIO) {
+        if (Flags.forwardSTSProcessIO) {
             pb.inheritIO();
         }
 
         Process STSProcess = pb.start();
-        if (forwardSTSProcessIO) {
+        if (Flags.forwardSTSProcessIO) {
             STSProcess.waitFor();
         }
     }
