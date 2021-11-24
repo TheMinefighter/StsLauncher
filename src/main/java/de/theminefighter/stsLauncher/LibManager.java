@@ -1,29 +1,38 @@
 package de.theminefighter.stsLauncher;
 
-import de.theminefighter.stsLauncher.caching.ResourceCache;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+/**
+ * Manages the libs needed, because they are not included in newer java versions
+ */
 public class LibManager {
-    public static List<URL> makeLibUrls(ResourceCache cache) {
+
+    /**
+     * makes an array of all Libs needed
+     * @return an array of URLS to all jar Libs needed
+     */
+    public static URL[] makeLibUrls() {
         InputStream mavenStream = ClassLoader.getSystemClassLoader().getResourceAsStream("de/theminefighter/stsLauncher/MavenList.csv");
         assert mavenStream != null; //Safe as the resource is integrated into this project
         Stream<String> lines = new BufferedReader(new InputStreamReader(mavenStream)).lines();
-        return lines.map(LibManager::makeMvnUrl).map(x -> cache.get(x, true)).collect(Collectors.toList());
+        return lines.map(LibManager::makeMvnUrl).toArray(URL[]::new);
     }
 
-    public static void showLicenseFiles(List<URL> urls) {
+    /**
+     * Shows all License files in a given Collection of jars
+     * @param urls a Collection of urls to jars to extract license files from
+     */
+    public static void showLicenseFiles(Collection<URL> urls) {
         for (URL url :
                 urls) {
             try {
@@ -53,6 +62,12 @@ public class LibManager {
             }
         }
     }
+
+    /**
+     * Makes a mvn url for the jar download of a given mvn package
+     * @param mvnCsvLine a string consisting of the groupId artifactId and version separated by commas.
+     * @return a mvn url for the jar download of the given mvn package
+     */
     private static URL makeMvnUrl(String mvnCsvLine) {
         String[] split = mvnCsvLine.split(",");
 

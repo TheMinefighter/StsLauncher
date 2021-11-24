@@ -4,18 +4,13 @@ import de.theminefighter.stsLauncher.caching.ResourceCache;
 import de.theminefighter.stsLauncher.caching.SimpleCache;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -47,9 +42,16 @@ public class Main {
         }
     }
 
-    private static String[] prepareLaunch(String arg, boolean slf) throws SAXException, IOException, ParserConfigurationException {
+    /**
+     * Prepares the launch of sts
+     * @param jnlp the jnlpFile
+     * @param slf whether the --show-license-files parameter was used
+     * @return all args for the exec call launching the new JVM for sts
+     * @throws Exception there are many thing which can go wrong in this method, for example the jnlp could be invalid
+     */
+    private static String[] prepareLaunch(String jnlp, boolean slf) throws Exception {
         //load jnlp structure
-        Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(arg)).getDocumentElement();
+        Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(jnlp)).getDocumentElement();
         String codebase = root.getAttribute("codebase");
         Element resources = (Element) root.getElementsByTagName("resources").item(0);
         Element appDesc = (Element) root.getElementsByTagName("application-desc").item(0);
@@ -132,7 +134,9 @@ public class Main {
     private static List<URL> getJarsForLaunch(String codebase, Element resources) throws IOException {
         ResourceCache cache = new SimpleCache();
         //Old java Version still include all libs required
-        List<URL> jarsToLoad = (System.getProperty("java.version").startsWith("1.")) ? new LinkedList<>() : LibManager.makeLibUrls(cache);
+        boolean oldJava = System.getProperty("java.version").startsWith("1.");
+        List<URL> jarsToLoad = oldJava ? new LinkedList<>() :
+                (Arrays.stream(LibManager.makeLibUrls())).map(x -> cache.get(x, true)).collect(Collectors.toList());
         NodeList jars = resources.getElementsByTagName("jar");
         for (int i = 0; i < jars.getLength(); i++) {
             Element jar = (Element) jars.item(i);
