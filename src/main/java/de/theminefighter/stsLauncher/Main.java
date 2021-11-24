@@ -25,11 +25,7 @@ public class Main {
         if (!slf)
             System.out.println("use --show-license-files as second argument to show license files of all libraries used");
         ProcessBuilder pb = new ProcessBuilder(prepareLaunch(args[0], slf));
-        if (Flags.forwardEnv) {
-            Map<String, String> environment = pb.environment();
-            environment.clear();
-            environment.putAll(System.getenv());
-        }
+        makeEnv(pb.environment());
         if (Flags.forwardSTSProcessIO) {
             pb.inheritIO();
         }
@@ -37,6 +33,17 @@ public class Main {
         Process STSProcess = pb.start();
         if (Flags.forwardSTSProcessIO) {
             STSProcess.waitFor();
+        }
+    }
+
+    /**
+     * Builds the environment for the new JVM process
+     * @param environment the environment to update
+     */
+    private static void makeEnv(Map<String, String> environment) {
+        if (Flags.forwardEnv) {
+            environment.clear();
+            environment.putAll(System.getenv());
         }
     }
 
@@ -50,17 +57,15 @@ public class Main {
     private static String[] prepareLaunch(String jnlp, boolean slf) throws Exception {
         //load jnlp structure
         Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(jnlp)).getDocumentElement();
-        String codebase = root.getAttribute("codebase");
         Element resources = (Element) root.getElementsByTagName("resources").item(0);
         Element appDesc = (Element) root.getElementsByTagName("application-desc").item(0);
-        String mainClassName = appDesc.getAttribute("main-class");
         //load server addresses and other stuff from jnlp to system properties
-        List<URL> jarsForLaunch = getJarsForLaunch(codebase, resources);
+        List<URL> jarsForLaunch = getJarsForLaunch(root.getAttribute("codebase"), resources);
         if (slf) {
             LibManager.showLicenseFiles(jarsForLaunch);
         }
 
-        return makeArgs(resources, appDesc, mainClassName, jarsForLaunch);
+        return makeArgs(resources, appDesc, appDesc.getAttribute("main-class"), jarsForLaunch);
         //return new String[]{"/bin/sh","-c",String.join(" ",javaArgs)};
     }
 
