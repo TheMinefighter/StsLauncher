@@ -106,7 +106,7 @@ public class Main {
 
     /**
      * Build a map of all props to set for the new JVM instance
-     *
+     * @apiNote does never include java.class.path prop and forces file.encoding=UTF-8
      * @param resources the resources element of the jnlp
      * @return a map of all props to set for the new JVM instance
      */
