@@ -1,8 +1,16 @@
 package de.theminefighter.StsLauncher;
 
-import java.io.IOException;
 import java.net.URL;
 
+/**
+ * Basic caching interface
+ */
 public interface ResourceCache {
+    /**
+     * Gets a resource from the cache
+     * @param remoteResource the resource to cache
+     * @param noUpdate whether to ignore updates on th resource, may be ignore
+     * @return the URL of the cached resource
+     */
     public URL get(URL remoteResource, boolean noUpdate) ;
 }

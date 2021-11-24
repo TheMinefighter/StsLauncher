@@ -17,39 +17,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static de.theminefighter.StsLauncher.Flags.forwardSTSProcessIO;
+
 
 public class Main {
-    /**
-     * used for offline debugging
-     */
-    private static final boolean offline = false;
-    /**
-     * Whether to forward JVM props to the new STS process
-     */
-    private static final boolean forwardProps = true;
-    /**
-     * Whether to forward the env of this process to the new java process
-     */
-    private static final boolean forwardEnv = true;
-    /**
-     * Whether to forward the IO of the new STS process
-     */
-    private static final boolean forwardSTSProcessIO = false;
-    /**
-     * Whether to set the new JVM Process to verbose output
-     */
-    private static final boolean verboseJVM = false;
-    /**
-     * Determines the path of the java executable running
-     *
-     * @return the path of the java executable running
-     */
-    private static String getJavaPath() {
-        /*File winAttempt = Paths.get(System.getProperty("java.home"), "bin", "java.exe").toFile();
-        if (winAttempt.exists()) return winAttempt.toString();*/
-        //Just checked: also works w/o .exe  suffix under windows
-        return Paths.get(System.getProperty("java.home"), "bin", "java").toFile().toString();
-    }
 
     public static void main(String[] args) throws Exception {
         if (args.length == 0)
@@ -59,7 +30,7 @@ public class Main {
         if (!slf)
             System.out.println("use --show-license-files as second argument to show license files of all libraries used");
         ProcessBuilder pb = new ProcessBuilder(prepareLaunch(args[0], slf));
-        if (forwardEnv) {
+        if (Flags.forwardEnv) {
             Map<String, String> environment = pb.environment();
             environment.clear();
             environment.putAll(System.getenv());
@@ -81,7 +52,7 @@ public class Main {
         Element resources = (Element) root.getElementsByTagName("resources").item(0);
         Element appDesc = (Element) root.getElementsByTagName("application-desc").item(0);
         String mainClassName = appDesc.getAttribute("main-class");
-//load server addresses and other stuff from jnlp to system properties
+        //load server addresses and other stuff from jnlp to system properties
         List<URL> jarsForLaunch = getJarsForLaunch(codebase, resources);
         if (slf) {
             LibManager.showLicenseFiles(jarsForLaunch);
@@ -91,10 +62,19 @@ public class Main {
         //return new String[]{"/bin/sh","-c",String.join(" ",javaArgs)};
     }
 
+    /**
+     * Builds all args for the exec call launching the new JVM
+     *
+     * @param resources     the resources element of the jnlp
+     * @param appDesc       the appDesc element of the jnlp
+     * @param mainClassName the name of the main class to launch extracted from the jnlp
+     * @param jarsForLaunch the jars needed in the classpath
+     * @return all args for the exec call launching the new JVM
+     */
     private static String[] makeArgs(Element resources, Element appDesc, String mainClassName, List<URL> jarsForLaunch) {
         List<String> javaArgs = new LinkedList<>();
         javaArgs.add(getJavaPath());
-        if (verboseJVM) {
+        if (Flags.verboseJVM) {
             javaArgs.add("-verbose:class");
             javaArgs.add("-verbose:jni");
         }
@@ -122,8 +102,14 @@ public class Main {
         return String.join(":", classPathParts);
     }
 
+    /**
+     * Build a map of all props to set for the new JVM instance
+     *
+     * @param resources the resources element of the jnlp
+     * @return a map of all props to set for the new JVM instance
+     */
     private static Map<String, String> makeJVMProps(Element resources) {
-        Map<String, String> launchProps = forwardProps ? System.getProperties().stringPropertyNames()
+        Map<String, String> launchProps = Flags.forwardProps ? System.getProperties().stringPropertyNames()
                 .stream().collect(Collectors.toMap(propN -> propN, System::getProperty, (a, b) -> b)) : new HashMap<>();
         NodeList props = resources.getElementsByTagName("property");
         IntStream.range(0, props.getLength()).mapToObj(i1 -> (Element) props.item(i1))
@@ -133,22 +119,38 @@ public class Main {
         return launchProps;
     }
 
-
+    /**
+     * Prepares all jars from the jnlp and required libs for launch
+     *
+     * @param codebase  the codebase attribute of the jnlp
+     * @param resources the resources element of the jnlp
+     * @return A list of all jars needed for launch
+     * @throws IOException something went wrong, probably whilst trying to cache the jars
+     */
     private static List<URL> getJarsForLaunch(String codebase, Element resources) throws IOException {
         ResourceCache cache = new SimpleCache();
+        //Old java Version still include all libs required
         List<URL> jarsToLoad = (System.getProperty("java.version").startsWith("1.")) ? new LinkedList<>() : LibManager.makeLibUrls(cache);
-
-        //load sts code
-
         NodeList jars = resources.getElementsByTagName("jar");
         for (int i = 0; i < jars.getLength(); i++) {
             Element jar = (Element) jars.item(i);
             URL href = new URL(codebase + "/" + jar.getAttribute("href"));
-            URL cached = cache.get(href, offline);
+            URL cached = cache.get(href, Flags.offline);
             jarsToLoad.add(cached);
         }
         return jarsToLoad;
     }
 
+    /**
+     * Determines the path of the java executable running
+     *
+     * @return the path of the java executable running
+     */
+    private static String getJavaPath() {
+        /*File winAttempt = Paths.get(System.getProperty("java.home"), "bin", "java.exe").toFile();
+        if (winAttempt.exists()) return winAttempt.toString();*/
+        //Just checked: also works w/o .exe  suffix under windows
+        return Paths.get(System.getProperty("java.home"), "bin", "java").toFile().toString();
+    }
 
 }
