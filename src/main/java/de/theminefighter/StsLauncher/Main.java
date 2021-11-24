@@ -22,12 +22,18 @@ import java.util.stream.IntStream;
 public class Main {
     //used for offline debugging
     static final boolean offline = false;
-    private static final boolean forwardProps=false;
-    private static final boolean forwardEnv=false;
+    private static final boolean forwardProps = false;
+    private static final boolean forwardEnv = false;
 
+    /**
+     * Determines the path of the java executable running
+     *
+     * @return the path of the java executable running
+     */
     private static String getJavaPath() {
-        File winAttempt = Paths.get(System.getProperty("java.home"), "bin", "java.exe").toFile();
-        if (winAttempt.exists()) return winAttempt.toString();
+        /*File winAttempt = Paths.get(System.getProperty("java.home"), "bin", "java.exe").toFile();
+        if (winAttempt.exists()) return winAttempt.toString();*/
+        //Just checked: also works w/o .exe  suffix under windows
         return Paths.get(System.getProperty("java.home"), "bin", "java").toFile().toString();
     }
 
@@ -51,7 +57,7 @@ public class Main {
 
     }
 
-    private static String[] prepareLaunch(String arg, boolean slf) throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
+    private static String[] prepareLaunch(String arg, boolean slf) throws SAXException, IOException, ParserConfigurationException {
         //load jnlp structure
         Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(arg)).getDocumentElement();
         String codebase = root.getAttribute("codebase");
@@ -64,16 +70,15 @@ public class Main {
             LibManager.showLicenseFiles(jarsForLaunch);
         }
 
-        String[] javaArgs = makeArgs(resources, appDesc, mainClassName, jarsForLaunch);
-        return javaArgs;
+        return makeArgs(resources, appDesc, mainClassName, jarsForLaunch);
         //return new String[]{"/bin/sh","-c",String.join(" ",javaArgs)};
     }
 
-    private static String[] makeArgs(Element resources, Element appDesc, String mainClassName, List<URL> jarsForLaunch) throws URISyntaxException {
+    private static String[] makeArgs(Element resources, Element appDesc, String mainClassName, List<URL> jarsForLaunch) {
         List<String> javaArgs = new LinkedList<>();
         javaArgs.add(getJavaPath());
-       // javaArgs.add("-verbose:class");
-       // javaArgs.add("-verbose:jni");
+        // javaArgs.add("-verbose:class");
+        // javaArgs.add("-verbose:jni");
         javaArgs.add("-cp");
         javaArgs.add(makeCPString(jarsForLaunch));
         Map<String, String> launchProps = makeJVMProps(resources);
@@ -86,55 +91,45 @@ public class Main {
         return javaArgs.toArray(new String[0]);
     }
 
-    private static String makeCPString(List<URL> jarsForLaunch) throws URISyntaxException {
+    /**
+     * Build the classpath string for launching STS
+     *
+     * @param jarsForLaunch the jars to include
+     * @return A classpath string with the jars provided+the classpath of the current java instance
+     */
+    private static String makeCPString(List<URL> jarsForLaunch) {
         List<String> classPathParts = jarsForLaunch.stream().map(URL::getPath).collect(Collectors.toList());
         classPathParts.add(System.getProperty("java.class.path"));
-        classPathParts.add(makeCPStringFromClass(Main.class));
         return String.join(":", classPathParts);
     }
 
-    private static String makeCPStringFromClass(Class<?> aClass) throws URISyntaxException {
-        CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
-        if (codeSource == null) {
-            String path = aClass.getResource(aClass.getSimpleName() + ".class").getPath();
-            if (path.contains("!")) {
-                return new URI(path.split("!")[0]).getPath();
-            } else {
-                throw new RuntimeException("Could not locate the location from which this program was launched");
-            }
+    private static Map<String, String> makeJVMProps(Element resources) {
+        Map<String, String> launchProps = forwardProps ? System.getProperties().stringPropertyNames()
+                .stream().collect(Collectors.toMap(propN -> propN, System::getProperty, (a, b) -> b)) : new HashMap<>();
+        NodeList props = resources.getElementsByTagName("property");
+        IntStream.range(0, props.getLength()).mapToObj(i1 -> (Element) props.item(i1))
+                .forEach(prop -> launchProps.put(prop.getAttribute("name"), prop.getAttribute("value")));
+        launchProps.remove("java.class.path");
+        launchProps.put("file.encoding", "UTF-8");
+        return launchProps;
+    }
+
+
+    private static List<URL> getJarsForLaunch(String codebase, Element resources) throws IOException {
+        ResourceCache cache = new SimpleCache();
+        List<URL> jarsToLoad = (System.getProperty("java.version").startsWith("1.")) ? new LinkedList<>() : LibManager.makeLibUrls(cache);
+
+        //load sts code
+
+        NodeList jars = resources.getElementsByTagName("jar");
+        for (int i = 0; i < jars.getLength(); i++) {
+            Element jar = (Element) jars.item(i);
+            URL href = new URL(codebase + "/" + jar.getAttribute("href"));
+            URL cached = cache.get(href, offline);
+            jarsToLoad.add(cached);
         }
-        else {
-                return codeSource.getLocation().getPath();
-            }
-        }
-
-        private static Map<String, String> makeJVMProps (Element resources){
-            Map<String, String> launchProps = forwardProps ? System.getProperties().stringPropertyNames()
-                    .stream().collect(Collectors.toMap(propN -> propN, System::getProperty, (a, b) -> b)) : new HashMap<>();
-            NodeList props = resources.getElementsByTagName("property");
-            IntStream.range(0, props.getLength()).mapToObj(i1 -> (Element) props.item(i1))
-                    .forEach(prop -> launchProps.put(prop.getAttribute("name"), prop.getAttribute("value")));
-            launchProps.remove("java.class.path");
-            launchProps.put("file.encoding","UTF-8");
-            return launchProps;
-        }
-
-
-        private static List<URL> getJarsForLaunch (String codebase, Element resources) throws IOException {
-            ResourceCache cache = new SimpleCache();
-            List<URL> jarsToLoad = (System.getProperty("java.version").startsWith("1.")) ? new LinkedList<>() : LibManager.makeLibUrls(cache);
-
-            //load sts code
-
-            NodeList jars = resources.getElementsByTagName("jar");
-            for (int i = 0; i < jars.getLength(); i++) {
-                Element jar = (Element) jars.item(i);
-                URL href = new URL(codebase + "/" + jar.getAttribute("href"));
-                URL cached = cache.get(href, offline);
-                jarsToLoad.add(cached);
-            }
-            return jarsToLoad;
-        }
+        return jarsToLoad;
+    }
 
 
 }
