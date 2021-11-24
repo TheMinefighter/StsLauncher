@@ -1,4 +1,4 @@
-package de.theminefighter.StsLauncher;
+package de.theminefighter.stsLauncher;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.util.zip.ZipFile;
 
 public class LibManager {
     public static List<URL> makeLibUrls(ResourceCache cache) {
-        InputStream mavenStream = ClassLoader.getSystemClassLoader().getResourceAsStream("de/theminefighter/StsLauncher/MavenList.csv");
+        InputStream mavenStream = ClassLoader.getSystemClassLoader().getResourceAsStream("de/theminefighter/stsLauncher/MavenList.csv");
         Stream<String> lines = new BufferedReader(new InputStreamReader(mavenStream)).lines();
         List<URL> jarsToLoad = lines.map(LibManager::makeMvnUrl).map(x -> cache.get(x, true)).collect(Collectors.toList());
         return jarsToLoad;

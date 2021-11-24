@@ -1,4 +1,4 @@
-package de.theminefighter.StsLauncher;
+package de.theminefighter.stsLauncher;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.File;

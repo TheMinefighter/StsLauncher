@@ -1,4 +1,4 @@
-package de.theminefighter.StsLauncher;
+package de.theminefighter.stsLauncher;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static de.theminefighter.StsLauncher.Flags.forwardSTSProcessIO;
+import static de.theminefighter.stsLauncher.Flags.forwardSTSProcessIO;
 
 
 public class Main {

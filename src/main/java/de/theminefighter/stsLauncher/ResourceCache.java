@@ -1,4 +1,4 @@
-package de.theminefighter.StsLauncher;
+package de.theminefighter.stsLauncher;
 
 import java.net.URL;
 
