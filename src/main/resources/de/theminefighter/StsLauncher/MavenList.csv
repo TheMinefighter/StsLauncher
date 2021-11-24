@@ -1,3 +1,4 @@
+com.sun.xml.ws,rt,2.3.1
 com.fasterxml.woodstox,woodstox-core,5.1.0
 com.sun.activation,jakarta.activation,2.0.1
 com.sun.activation,javax.activation,1.2.0
@@ -14,7 +15,6 @@ com.sun.xml.ws,jaxws-eclipselink-plugin,3.0.2
 com.sun.xml.ws,jaxws-rt,3.0.2
 com.sun.xml.ws,jaxws-tools,3.0.2
 com.sun.xml.ws,policy,2.7.5
-com.sun.xml.ws,rt,2.3.1
 com.sun.xml.ws,sdo-eclipselink-plugin,3.0.2
 jakarta.annotation,jakarta.annotation-api,2.0.0
 jakarta.jws,jakarta.jws-api,3.0.0
