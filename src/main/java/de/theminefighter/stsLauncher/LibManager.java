@@ -1,5 +1,7 @@
 package de.theminefighter.stsLauncher;
 
+import de.theminefighter.stsLauncher.caching.ResourceCache;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +18,9 @@ import java.util.zip.ZipFile;
 public class LibManager {
     public static List<URL> makeLibUrls(ResourceCache cache) {
         InputStream mavenStream = ClassLoader.getSystemClassLoader().getResourceAsStream("de/theminefighter/stsLauncher/MavenList.csv");
+        assert mavenStream != null; //Safe as the resource is integrated into this project
         Stream<String> lines = new BufferedReader(new InputStreamReader(mavenStream)).lines();
-        List<URL> jarsToLoad = lines.map(LibManager::makeMvnUrl).map(x -> cache.get(x, true)).collect(Collectors.toList());
-        return jarsToLoad;
+        return lines.map(LibManager::makeMvnUrl).map(x -> cache.get(x, true)).collect(Collectors.toList());
     }
 
     public static void showLicenseFiles(List<URL> urls) {
@@ -47,7 +49,7 @@ public class LibManager {
                 }
                 zf.close();
             } catch (IOException e) {
-                System.out.println("An error occurred whilst looking for License files in " + url.toString());
+                System.out.printf("An error occurred whilst looking for License files in %s%n", url);
             }
         }
     }
