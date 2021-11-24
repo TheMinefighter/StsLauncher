@@ -73,7 +73,7 @@ public class Main {
         List<String> javaArgs = new LinkedList<>();
         javaArgs.add(getJavaPath());
        // javaArgs.add("-verbose:class");
-        javaArgs.add("-verbose:jni");
+       // javaArgs.add("-verbose:jni");
         javaArgs.add("-cp");
         javaArgs.add(makeCPString(jarsForLaunch));
         Map<String, String> launchProps = makeJVMProps(resources);
