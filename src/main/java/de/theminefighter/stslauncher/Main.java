@@ -1,7 +1,7 @@
-package de.theminefighter.stsLauncher;
+package de.theminefighter.stslauncher;
 
-import de.theminefighter.stsLauncher.caching.ResourceCache;
-import de.theminefighter.stsLauncher.caching.SimpleCache;
+import de.theminefighter.stslauncher.caching.ResourceCache;
+import de.theminefighter.stslauncher.caching.SimpleCache;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 

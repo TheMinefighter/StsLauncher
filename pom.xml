@@ -24,7 +24,7 @@
                     <archive>
                         <manifest>
                             <mainClass>
-                                de.theminefighter.stsLauncher.Main
+                                de.theminefighter.stslauncher.Main
                             </mainClass>
                         </manifest>
                     </archive>

@@ -1,4 +1,4 @@
-package de.theminefighter.stsLauncher.caching;
+package de.theminefighter.stslauncher.caching;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.File;

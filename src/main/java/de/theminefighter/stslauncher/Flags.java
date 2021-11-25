@@ -1,4 +1,4 @@
-package de.theminefighter.stsLauncher;
+package de.theminefighter.stslauncher;
 
 public class Flags {
     /**
