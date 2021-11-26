@@ -1,9 +1,6 @@
 package de.theminefighter.stslauncher;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -33,33 +30,38 @@ public class LibManager {
      * @param urls a Collection of urls to jars to extract license files from
      */
     public static void showLicenseFiles(Collection<URL> urls) {
+        PrintStream out = System.out;
         for (URL url :
                 urls) {
-            try {
-                ZipFile zf=new ZipFile(url.getPath());
-                Enumeration<? extends ZipEntry> entries = zf.entries();
+            showLicenseFile(out, url);
+        }
+    }
 
-                while(entries.hasMoreElements()){
-                    ZipEntry entry = entries.nextElement();
-                    if (entry.isDirectory()) continue;
-                    if (entry.getName().toLowerCase().contains("license")) {
-                        InputStream lcs = zf.getInputStream(entry);
-                        InputStreamReader lcsr =  new InputStreamReader(lcs);
-                        BufferedReader blcsr=new BufferedReader(lcsr);
-                        String line;
-                        while ((line = blcsr.readLine()) != null) {
-                            System.out.println(line);
-                        }
-                        System.out.println("=============================================");
-                        blcsr.close();
-                        lcsr.close();
-                        lcs.close();
+    static void showLicenseFile(PrintStream out, URL url) {
+        try {
+            ZipFile zf=new ZipFile(url.getPath());
+            Enumeration<? extends ZipEntry> entries = zf.entries();
+
+            while(entries.hasMoreElements()){
+                ZipEntry entry = entries.nextElement();
+                if (entry.isDirectory()) continue;
+                if (entry.getName().toLowerCase().contains("license")) {
+                    InputStream lcs = zf.getInputStream(entry);
+                    InputStreamReader lcsr =  new InputStreamReader(lcs);
+                    BufferedReader blcsr=new BufferedReader(lcsr);
+                    String line;
+                    while ((line = blcsr.readLine()) != null) {
+                        out.println(line);
                     }
+                    out.println("=============================================");
+                    blcsr.close();
+                    lcsr.close();
+                    lcs.close();
                 }
-                zf.close();
-            } catch (IOException e) {
-                System.out.printf("An error occurred whilst looking for License files in %s%n", url);
             }
+            zf.close();
+        } catch (IOException e) {
+            out.printf("An error occurred whilst looking for License files in %s%n", url);
         }
     }
 

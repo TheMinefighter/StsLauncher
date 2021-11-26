@@ -1,0 +1,42 @@
+package de.theminefighter.stslauncher;
+
+import de.theminefighter.stslauncher.LibManager;
+import de.theminefighter.stslauncher.caching.ResourceCache;
+import de.theminefighter.stslauncher.caching.SimpleCache;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class CacheTests {
+    ResourceCache r = new SimpleCache();
+
+    public CacheTests() throws IOException {
+    }
+
+    @Test
+    @Order(0)
+    public void cache() throws Exception {
+        String req = "https://github.com/TheMinefighter/StsLauncher/releases/download/v1.2/StsLauncher.jar";
+        URL cacheUrl = r.get(new URL(req), false);
+        assertEquals(15409, new File(cacheUrl.getFile()).length());
+    }
+    @Test
+    @Order(10)
+    public void License() throws Exception {
+        String req = "https://github.com/TheMinefighter/StsLauncher/releases/download/v1.2/StsLauncher.jar";
+        URL cacheUrl = r.get(new URL(req), true);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final String utf8 = StandardCharsets.UTF_8.name();
+        try (PrintStream ps = new PrintStream(baos, true, utf8)) {
+            LibManager.showLicenseFile(ps,cacheUrl);
+        }
+        String data = baos.toString(utf8);
+        assertTrue(data.contains("Permission is hereby granted, free of charge, to any person obtaining a copy"));
+    }
+}

@@ -155,7 +155,7 @@ public class Main {
      *
      * @return the path of the java executable running
      */
-    private static String getJavaPath() {
+    static String getJavaPath() {
         /*File winAttempt = Paths.get(System.getProperty("java.home"), "bin", "java.exe").toFile();
         if (winAttempt.exists()) return winAttempt.toString();*/
         //Just checked: also works w/o .exe  suffix under windows
