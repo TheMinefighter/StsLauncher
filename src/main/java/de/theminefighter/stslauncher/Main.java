@@ -54,7 +54,7 @@ public class Main {
      * @return all args for the exec call launching the new JVM for sts
      * @throws Exception there are many thing which can go wrong in this method, for example the jnlp could be invalid
      */
-    private static String[] prepareLaunch(String jnlp, boolean slf) throws Exception {
+    static String[] prepareLaunch(String jnlp, boolean slf) throws Exception {
         //load jnlp structure
         Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(jnlp)).getDocumentElement();
         Element resources = (Element) root.getElementsByTagName("resources").item(0);

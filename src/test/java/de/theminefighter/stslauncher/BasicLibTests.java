@@ -1,4 +1,4 @@
-package de.theminefighter.stslauncher.tests;
+package de.theminefighter.stslauncher;
 import de.theminefighter.stslauncher.LibManager;
 import org.junit.jupiter.api.Test;
 

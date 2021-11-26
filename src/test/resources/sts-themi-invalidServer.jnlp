@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="https://www.stellwerksim.de"
+	  href="https://www.stellwerksim.de/download-jnlp.php?token=006139ea66d8b8">
+	<information>
+		<title>StellwerkSim</title>
+		<vendor>JS</vendor>
+		<homepage href="http://www.js-home.org/" />
+		<description>Stellwerk Simulation</description>
+		<icon href="/sts1-minicut.jpg"/>
+		<shortcut online="false">
+			<desktop/>
+			<menu submenu="StellwerkSim.de"/>
+		</shortcut>
+	</information>
+	<security>
+		<all-permissions/>
+	</security>
+	<update check="always" policy="always" />
+	<resources>
+		<!-- Application Resources -->
+		<j2se version="1.8.0*" href="http://java.sun.com/products/autodl/j2se" java-vm-args="-Dcom.sun.management.jmxremote" initial-heap-size="500M" />
+		<j2se version="9+" href="http://java.sun.com/products/autodl/j2se" java-vm-args="--add-modules=java.xml.ws" initial-heap-size="500M" />
+		<jar href="Loader.jar" download="progress"/>
+		<jar href="sts.jar" main="true" download="eager"/>
+		<jar href="js-tools.jar" download="eager"/>
+		<jar href="STSQuery.jar" download="eager"/>
+		<jar href="flatlaf.jar" download="eager"/>
+		<jar href="flatlaf-themes.jar" download="eager"/>
+
+		<property name="jnlp.ircserver" value="bespin.stellwerksim.de.nonExistingDomainTest"/>
+		<property name="jnlp.timeserver" value="bespin.stellwerksim.de.nonExistingDomainTest"/>
+		<property name="jnlp.webserver" value="www.stellwerksim.de.nonExistingDomainTest"/>
+		<property name="jnlp.service" value="https://www.stellwerksim.de.nonExistingDomainTest/soap.php"/>
+		<property name="jnlp.log" value="www.stellwerksim.de.nonExistingDomainTest/javalog.php"/>
+		<property name="jnlp.controlbot" value="sts-control"/>
+		<property name="jnlp.controlroomPrefix" value="#control"/>
+		<property name="jnlp.readyroom" value="#readyroom"/>
+		<property name="jnlp.readyroomchannels" value="#Lobby:Lobby;#quassel:Spielanfragen"/>
+		<property name="jnlp.mixfilterchannels" value="#Lobby"/>
+		<property name="jnlp.startchannel" value="#lobby"/>
+	</resources>
+	<application-desc
+			name="StellwerkSim"
+			main-class="js.java.schaltungen.stsmain"
+			width="300"
+			height="300">
+		<argument>00000000000001</argument>
+		<argument>00001</argument>
+		<argument>StsLauncherTest</argument>
+	</application-desc>
+</jnlp>
