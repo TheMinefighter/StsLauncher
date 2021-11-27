@@ -3,6 +3,7 @@ package de.theminefighter.stslauncher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.io.File;
 import java.io.InputStream;
@@ -14,6 +15,8 @@ public class IntegrationTests {
 
     @Test
     @Timeout(4)
+    @DisabledIfEnvironmentVariable(named = "CI",
+            matches = "true", disabledReason = "Launching STS does not work in GUI-less CI systems.")
     public void runForUnknownHost() throws Exception {
         String filename = "sts-themi-invalidServer.jnlp";
         String altPath = Paths.get(".", "src", "test", "resources", filename).toString();
