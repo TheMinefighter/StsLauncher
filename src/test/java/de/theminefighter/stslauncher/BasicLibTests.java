@@ -1,11 +1,11 @@
 package de.theminefighter.stslauncher;
-import de.theminefighter.stslauncher.LibManager;
+
 import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BasicLibTests {
     @Test
     public void checkLibUrls()  {

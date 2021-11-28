@@ -29,7 +29,7 @@ public class Main {
         if (Flags.forwardSTSProcessIO) {
             pb.inheritIO();
         }
-
+        System.out.println("Launching actual jnlp...");
         Process STSProcess = pb.start();
         if (Flags.forwardSTSProcessIO) {
             STSProcess.waitFor();
@@ -138,6 +138,7 @@ public class Main {
         ResourceCache cache = new SimpleCache();
         //Old java Version still include all libs required
         boolean oldJava = System.getProperty("java.version").startsWith("1.");
+        System.out.println("Preparing java libraries for launch (this may take some seconds on the first launch or after an update)...");
         List<URL> jarsToLoad = oldJava ? new LinkedList<>() :
                 (Arrays.stream(LibManager.makeLibUrls())).map(x -> cache.get(x, true)).collect(Collectors.toList());
         NodeList jars = resources.getElementsByTagName("jar");

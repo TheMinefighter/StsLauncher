@@ -12,6 +12,5 @@ public class OtherTests {
         File file = new File(Main.getJavaPath());
         assertTrue(file.exists());
         assertTrue(file.canExecute());
-
     }
 }

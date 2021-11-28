@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="StsLauncher:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/StsLauncher_jar</output-path>
-    <root id="archive" name="StsLauncher.jar">
-      <element id="module-output" name="StsLauncher" />
-      <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources" />
-    </root>
-  </artifact>
-</component>

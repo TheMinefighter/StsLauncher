@@ -12,5 +12,5 @@ public interface ResourceCache {
      * @param noUpdate whether to ignore updates on th resource, may be ignore
      * @return the URL of the cached resource
      */
-    public URL get(URL remoteResource, boolean noUpdate) ;
+	 URL get(URL remoteResource, boolean noUpdate) ;
 }
