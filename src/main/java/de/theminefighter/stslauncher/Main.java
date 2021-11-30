@@ -65,7 +65,7 @@ public class Main {
             LibManager.showLicenseFiles(jarsForLaunch);
         }
 
-        return makeArgs(resources, appDesc, appDesc.getAttribute("main-class"), jarsForLaunch);
+        return makeArgs(resources, appDesc, appDesc.getAttribute("main-class"), jarsForLaunch, jnlp);
         //return new String[]{"/bin/sh","-c",String.join(" ",javaArgs)};
     }
 
@@ -78,7 +78,7 @@ public class Main {
      * @param jarsForLaunch the jars needed in the classpath
      * @return all args for the exec call launching the new JVM
      */
-    private static String[] makeArgs(Element resources, Element appDesc, String mainClassName, List<URL> jarsForLaunch) {
+    private static String[] makeArgs(Element resources, Element appDesc, String mainClassName, List<URL> jarsForLaunch, String jnlpPath) {
         List<String> javaArgs = new LinkedList<>();
         javaArgs.add(getJavaPath());
         if (Flags.verboseJVM) {
@@ -87,7 +87,7 @@ public class Main {
         }
         javaArgs.add("-cp");
         javaArgs.add(makeCPString(jarsForLaunch));
-        Map<String, String> launchProps = makeJVMProps(resources);
+        Map<String, String> launchProps = makeJVMProps(resources,jnlpPath);
         launchProps.entrySet().stream().map(lp -> String.format("-D%s=%s", lp.getKey(), lp.getValue())).forEach(javaArgs::add);
         //load arguments for main method of sts
         javaArgs.add(mainClassName);
@@ -115,7 +115,7 @@ public class Main {
      * @param resources the resources element of the jnlp
      * @return a map of all props to set for the new JVM instance
      */
-    private static Map<String, String> makeJVMProps(Element resources) {
+    private static Map<String, String> makeJVMProps(Element resources,String jnlpPath) {
         Map<String, String> launchProps = Flags.forwardProps ? System.getProperties().stringPropertyNames()
                 .stream().collect(Collectors.toMap(propN -> propN, System::getProperty, (a, b) -> b)) : new HashMap<>();
         NodeList props = resources.getElementsByTagName("property");
@@ -123,6 +123,7 @@ public class Main {
                 .forEach(prop -> launchProps.put(prop.getAttribute("name"), prop.getAttribute("value")));
         launchProps.remove("java.class.path");
         launchProps.put("file.encoding", "UTF-8");
+        launchProps.put("jnlpx.origFilenameArg",jnlpPath);
         return launchProps;
     }
 
