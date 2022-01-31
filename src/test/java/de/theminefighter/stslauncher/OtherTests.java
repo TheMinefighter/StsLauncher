@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class OtherTests {
     @Test
     public void JavaPathTest() {
-        File file = new File(Main.getJavaPath());
+        File file = new File(JavaUtilities.getJavaPath());
         assertTrue(file.exists());
         assertTrue(file.canExecute());
     }

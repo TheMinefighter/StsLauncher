@@ -1,4 +1,4 @@
 package javax.jnlp;
 @SuppressWarnings("unused")
-public class IntegrationService {
+public interface IntegrationService {
 }

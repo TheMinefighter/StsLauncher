@@ -9,7 +9,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -80,7 +79,7 @@ public class Main {
      */
     private static String[] makeArgs(Element resources, Element appDesc, String mainClassName, List<URL> jarsForLaunch, String jnlpPath) {
         List<String> javaArgs = new LinkedList<>();
-        javaArgs.add(getJavaPath());
+        javaArgs.add(JavaUtilities.getJavaPath());
         if (Flags.verboseJVM) {
             javaArgs.add("-verbose:class");
             javaArgs.add("-verbose:jni");
@@ -150,18 +149,6 @@ public class Main {
             jarsToLoad.add(cached);
         }
         return jarsToLoad;
-    }
-
-    /**
-     * Determines the path of the java executable running
-     *
-     * @return the path of the java executable running
-     */
-    static String getJavaPath() {
-        /*File winAttempt = Paths.get(System.getProperty("java.home"), "bin", "java.exe").toFile();
-        if (winAttempt.exists()) return winAttempt.toString();*/
-        //Just checked: also works w/o .exe  suffix under windows
-        return Paths.get(System.getProperty("java.home"), "bin", "java").toFile().toString();
     }
 
 }

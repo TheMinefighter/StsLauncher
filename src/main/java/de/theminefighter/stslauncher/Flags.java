@@ -16,7 +16,7 @@ public class Flags {
     /**
      * Whether to forward the IO of the new STS process
      */
-    static final boolean forwardSTSProcessIO = false;
+    static final boolean forwardSTSProcessIO = true;
     /**
      * Whether to set the new JVM Process to verbose output
      */
