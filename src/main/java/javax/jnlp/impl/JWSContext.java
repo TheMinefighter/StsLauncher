@@ -22,6 +22,8 @@ public class JWSContext {
 	private static Element information;
 	private static ResourceCache cache;
 
+	private JWSContext() {}
+
 	static {
 		try {
 			cache = new SimpleCache();
@@ -53,17 +55,18 @@ public class JWSContext {
 
 	public static File getLocalIcon() {
 		NodeList iconTags = getInformation().getElementsByTagName("icon");
-		if (iconTags.getLength()==0) return null;
+		if (iconTags.getLength() == 0) return null;
 		String href = ((Element) iconTags.item(0)).getAttribute("href");
 		try {
-			return cache.get(new URL(getRoot().getAttribute("codebase") +href),true);
+			return cache.get(new URL(getRoot().getAttribute("codebase") + href), true);
 		} catch (MalformedURLException e) {
 			return null;
 		}
 	}
+
 	public static File getLocalJNLP() {
 		try {
-			return cache.get(new URL(getRoot().getAttribute("href") ),true);
+			return cache.get(new URL(getRoot().getAttribute("href")), true);
 		} catch (MalformedURLException e) {
 			return null;
 		}
@@ -72,10 +75,11 @@ public class JWSContext {
 	public static Element getRoot() {
 		return root;
 	}
+
 	public static File getLocalStsLauncherJarPath() {
 		try {
 			final String spec = "https://github.com/TheMinefighter/StsLauncher/releases/latest/download/StsLauncher.jar";
-			return cache.storeLocal(JavaUtilities.getStsLauncherJarLocation(),new URL(JavaUtilities.isJar()? spec:spec+".unpacked"));
+			return cache.storeLocal(JavaUtilities.getStsLauncherJarLocation(), new URL(JavaUtilities.isJar() ? spec : spec + ".unpacked"));
 		} catch (MalformedURLException e) {
 			throw new RuntimeException("This does not happen");
 		}

@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -81,7 +80,7 @@ public class SimpleCache implements ResourceCache {
 		}
 
 		assert md != null; //Safe, as any Java platform is REQUIRED to provide SHA256
-		return Base64.getUrlEncoder().encodeToString(md.digest(remoteResource.toString().getBytes(StandardCharsets.UTF_8)));
+		return Base64.getUrlEncoder().encodeToString(md.digest(remoteResource.getBytes(StandardCharsets.UTF_8)));
 	}
 
 	/**

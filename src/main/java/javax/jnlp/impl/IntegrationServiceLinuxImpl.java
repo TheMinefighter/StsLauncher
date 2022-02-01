@@ -1,7 +1,6 @@
 package javax.jnlp.impl;
 
 
-
 import de.theminefighter.stslauncher.JavaUtilities;
 import de.theminefighter.stslauncher.Main;
 
@@ -12,11 +11,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class IntegrationServiceLinuxImpl implements IntegrationService {
-	private static String desktopFolder = "/Desktop/";
-	private static String menuFolder = "/.local/share/applications/";
-	private static final String dePrefix = "stslauncher.DesktopSc_";
-	private static final String mePrefix = "stslauncher.MenuSc_";
+	private static final String desktopFolder = "/Desktop/";
+	private static final String menuFolder = "/.local/share/applications/";
+	private static final String dePrefix = "stsLauncher.DesktopSc_";
+	private static final String mePrefix = "stsLauncher.MenuSc_";
 	private static final String fileType = ".desktop";
 
 	@Override
@@ -26,7 +26,7 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 
 	@Override
 	public boolean hasDesktopShortcut() {
-		return getDesktopFile().exists();
+		return hasShortcut(false);
 	}
 
 	private File getDesktopFile() {
@@ -39,8 +39,12 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 
 	@Override
 	public boolean hasMenuShortcut() {
-		return getMenuFile().exists();
+		return hasShortcut(true);
 		//return Arrays.stream(new File(menuFolder).listFiles()).findAny().isPresent();
+	}
+
+	private boolean hasShortcut(boolean isMenu) {
+		return (isMenu? getMenuFile():getDesktopFile()).exists();
 	}
 
 
@@ -71,37 +75,31 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 	}
 
 	private boolean makeDesktopShortcut() {
-		if (hasDesktopShortcut()) return false;
-		try {
-			File desktopFile = getDesktopFile();
-			desktopFile.createNewFile();
-			FileWriter fileWriter = new FileWriter(desktopFile);
-			fileWriter.write(makeDeFString(null));
-			fileWriter.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-		return true;
+		return makeShortcut(null, false);
 	}
 
 	private boolean makeMenuShortcut(String subMenu) {
+		//For Win use
 		//File file = new File(Paths.get(menuFolder, subMenu, mePrefix + JWSContext.getIdentifier() + fileType).toString());
 		//if (file.exists()) return false;
-		if (hasMenuShortcut()) return false;
+		return makeShortcut(subMenu, true);
+
+	}
+
+	private boolean makeShortcut(String subMenu, boolean isMenu) {
+		File desktopFile = isMenu? getMenuFile():getDesktopFile();
+		if (hasShortcut(isMenu)) return false;
+		String desktopFileContent = makeDeFString(subMenu);
 		try {
-			File desktopFile = getMenuFile();
-			desktopFile.getParentFile().mkdirs();
-			desktopFile.createNewFile();
+			if (!desktopFile.getParentFile().exists() || !desktopFile.createNewFile()) return false;
 			FileWriter fileWriter = new FileWriter(desktopFile, false);
-			fileWriter.write(makeDeFString(subMenu));
+			fileWriter.write(desktopFileContent);
 			fileWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
 		}
 		return true;
-
 	}
 
 	private String makeDeFString(String subMenu) {
@@ -136,8 +134,11 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 		return r;
 	}
 
-	private String makeExec() {if (JavaUtilities.isJar()) {
-		return String.format("%s -jar %s %s", JavaUtilities.getJavaPath(), JWSContext.getLocalStsLauncherJarPath(), JWSContext.getLocalJNLP());
-	} else return String.format("%s -cp %s %s %s", JavaUtilities.getJavaPath(), JavaUtilities.getStsLauncherJarLocation(), Main.class.getCanonicalName(), JWSContext.getLocalJNLP());
+	private String makeExec() {
+		if (JavaUtilities.isJar()) {
+			return String.format("%s -jar %s %s", JavaUtilities.getJavaPath(), JWSContext.getLocalStsLauncherJarPath(), JWSContext.getLocalJNLP());
+		} else {
+			return String.format("%s -cp %s %s %s", JavaUtilities.getJavaPath(), JavaUtilities.getStsLauncherJarLocation(), Main.class.getCanonicalName(), JWSContext.getLocalJNLP());
+		}
 	}
 }

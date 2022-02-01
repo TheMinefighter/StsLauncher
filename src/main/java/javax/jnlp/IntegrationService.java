@@ -1,19 +1,20 @@
 package javax.jnlp;
 
+@SuppressWarnings("unused")
 public interface IntegrationService {
 
-	public boolean hasAssociation(java.lang.String mimeType, java.lang.String[] extensions);
+	boolean hasAssociation(java.lang.String mimeType, java.lang.String[] extensions);
 
-	public boolean hasDesktopShortcut();
+	boolean hasDesktopShortcut();
 
-	public boolean hasMenuShortcut();
+	boolean hasMenuShortcut();
 
-	public boolean removeAssociation(java.lang.String mimeType, java.lang.String[] extensions);
+	boolean removeAssociation(java.lang.String mimeType, java.lang.String[] extensions);
 
-	public boolean removeShortcuts();
+	boolean removeShortcuts();
 
-	public boolean requestAssociation(java.lang.String mimeType, java.lang.String[] extensions);
+	boolean requestAssociation(java.lang.String mimeType, java.lang.String[] extensions);
 
-	public boolean requestShortcut(boolean onDesktop, boolean inMenu, java.lang.String subMenu);
+	boolean requestShortcut(boolean onDesktop, boolean inMenu, java.lang.String subMenu);
 
 }

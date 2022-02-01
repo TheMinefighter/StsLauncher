@@ -1,20 +1,22 @@
 package de.theminefighter.stslauncher;
 
-import de.theminefighter.stslauncher.LibManager;
 import de.theminefighter.stslauncher.caching.ResourceCache;
 import de.theminefighter.stslauncher.caching.SimpleCache;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CacheTests {
-    ResourceCache r = new SimpleCache();
+    final ResourceCache r = new SimpleCache();
 
     public CacheTests() throws IOException {
     }
