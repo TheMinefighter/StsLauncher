@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implements IntegrationService partially for linux environments, assoc stiff is not implemented
+ */
 @SuppressWarnings("unused")
 public class IntegrationServiceLinuxImpl implements IntegrationService {
 	private static final String desktopFolder = "/Desktop/";
@@ -104,7 +107,7 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 
 	private String makeDeFString(String subMenu) {
 		StringBuilder sb = new StringBuilder("[Desktop Entry]\n");
-		Map<String, String> info = makeData(subMenu);
+		Map<String, String> info = makeDeFData(subMenu);
 		for (Map.Entry<String, String> e :
 				info.entrySet()) {
 			sb.append(e.getKey()).append('=').append(e.getValue()).append('\n');
@@ -113,7 +116,7 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 		return sb.toString();
 	}
 
-	private Map<String, String> makeData(String subMenu) {
+	private Map<String, String> makeDeFData(String subMenu) {
 		Map<String, String> r = new HashMap<>();
 		r.put("Version", "1.5");
 		r.put("Type", "Application");
@@ -138,7 +141,7 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 		if (JavaUtilities.isJar()) {
 			return String.format("%s -jar %s %s", JavaUtilities.getJavaPath(), JWSContext.getLocalStsLauncherJarPath(), JWSContext.getLocalJNLP());
 		} else {
-			return String.format("%s -cp %s %s %s", JavaUtilities.getJavaPath(), JavaUtilities.getStsLauncherJarLocation(), Main.class.getCanonicalName(), JWSContext.getLocalJNLP());
+			return String.format("%s -cp %s %s %s", JavaUtilities.getJavaPath(), JavaUtilities.getStsLauncherLocation(), Main.class.getCanonicalName(), JWSContext.getLocalJNLP());
 		}
 	}
 }

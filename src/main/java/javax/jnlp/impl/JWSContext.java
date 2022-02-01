@@ -79,7 +79,7 @@ public class JWSContext {
 	public static File getLocalStsLauncherJarPath() {
 		try {
 			final String spec = "https://github.com/TheMinefighter/StsLauncher/releases/latest/download/StsLauncher.jar";
-			return cache.storeLocal(JavaUtilities.getStsLauncherJarLocation(), new URL(JavaUtilities.isJar() ? spec : spec + ".unpacked"));
+			return cache.storeLocal(JavaUtilities.getStsLauncherLocation(), new URL(JavaUtilities.isJar() ? spec : spec + ".unpacked"));
 		} catch (MalformedURLException e) {
 			throw new RuntimeException("This does not happen");
 		}

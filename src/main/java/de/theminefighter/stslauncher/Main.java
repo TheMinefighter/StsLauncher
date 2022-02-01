@@ -65,7 +65,6 @@ public class Main {
         }
 
         return makeArgs(resources, appDesc, appDesc.getAttribute("main-class"), jarsForLaunch, jnlp);
-        //return new String[]{"/bin/sh","-c",String.join(" ",javaArgs)};
     }
 
     /**
