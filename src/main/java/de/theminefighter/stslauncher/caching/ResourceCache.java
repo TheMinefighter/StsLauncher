@@ -1,5 +1,6 @@
 package de.theminefighter.stslauncher.caching;
 
+import java.io.File;
 import java.net.URL;
 
 /**
@@ -12,5 +13,6 @@ public interface ResourceCache {
      * @param noUpdate whether to ignore updates on th resource, may be ignore
      * @return the URL of the cached resource
      */
-	 URL get(URL remoteResource, boolean noUpdate) ;
+	 File get(URL remoteResource, boolean noUpdate) ;
+	 File storeLocal(File file,URL id);
 }

@@ -27,19 +27,19 @@ public class LibManager {
 
     /**
      * Shows all License files in a given Collection of jars
-     * @param urls a Collection of urls to jars to extract license files from
+     * @param files a Collection of urls to jars to extract license files from
      */
-    public static void showLicenseFiles(Collection<URL> urls) {
+    public static void showLicenseFiles(Collection<File> files) {
         PrintStream out = System.out;
-        for (URL url :
-                urls) {
-            showLicenseFile(out, url);
+        for (File file :
+                files) {
+            showLicenseFile(out, file);
         }
     }
 
-    static void showLicenseFile(PrintStream out, URL url) {
+    static void showLicenseFile(PrintStream out, File file) {
         try {
-            ZipFile zf=new ZipFile(url.getPath());
+            ZipFile zf=new ZipFile(file.getPath());
             Enumeration<? extends ZipEntry> entries = zf.entries();
 
             while(entries.hasMoreElements()){
@@ -61,7 +61,7 @@ public class LibManager {
             }
             zf.close();
         } catch (IOException e) {
-            out.printf("An error occurred whilst looking for License files in %s%n", url);
+            out.printf("An error occurred whilst looking for License files in %s%n", file);
         }
     }
 
