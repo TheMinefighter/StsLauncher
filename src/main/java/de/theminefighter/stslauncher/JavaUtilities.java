@@ -10,14 +10,14 @@ public class JavaUtilities {
 	 *
 	 * @return the path of the java executable running
 	 */
-	static String getJavaPath() {
+	public static String getJavaPath() {
 		 /*File winAttempt = Paths.get(System.getProperty("java.home"), "bin", "java.exe").toFile();
 		 if (winAttempt.exists()) return winAttempt.toString();*/
 		//Just checked: also works w/o .exe  suffix under windows
 		return Paths.get(System.getProperty("java.home"), "bin", "java").toFile().toString();
 	}
 
-	static File getStsLauncherJarLocation() {
+	public static File getStsLauncherJarLocation() {
 		try {
 			return new File(JavaUtilities.class.getProtectionDomain().getCodeSource().getLocation()
 					.toURI());

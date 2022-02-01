@@ -40,16 +40,16 @@ public class SimpleCache implements ResourceCache {
 	}
 
 	@Override
-	public File storeLocal(File file, URL id) {
-		File f = getFileByUrl(id);
-		if (!f.exists() || f.length() != file.length()) {
+	public File storeLocal(File src, URL id) {
+		File cacheFile = getFileByUrl(id);
+		if (!cacheFile.exists() || cacheFile.length() != src.length()) {
 			try {
-				Files.copy(file.toPath(), f.toPath(), REPLACE_EXISTING);
+				Files.copy(src.toPath(), cacheFile.toPath(), REPLACE_EXISTING);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		return f;
+		return cacheFile;
 
 	}
 

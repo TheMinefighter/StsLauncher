@@ -59,7 +59,7 @@ public class Main {
         Element resources = (Element) root.getElementsByTagName("resources").item(0);
         Element appDesc = (Element) root.getElementsByTagName("application-desc").item(0);
         //load server addresses and other stuff from jnlp to system properties
-        List<URL> jarsForLaunch = getJarsForLaunch(root.getAttribute("codebase"), resources);
+        List<File> jarsForLaunch = getJarsForLaunch(root.getAttribute("codebase"), resources);
         if (slf) {
             LibManager.showLicenseFiles(jarsForLaunch);
         }
@@ -77,7 +77,7 @@ public class Main {
      * @param jarsForLaunch the jars needed in the classpath
      * @return all args for the exec call launching the new JVM
      */
-    private static String[] makeArgs(Element resources, Element appDesc, String mainClassName, List<URL> jarsForLaunch, String jnlpPath) {
+    private static String[] makeArgs(Element resources, Element appDesc, String mainClassName, List<File> jarsForLaunch, String jnlpPath) {
         List<String> javaArgs = new LinkedList<>();
         javaArgs.add(JavaUtilities.getJavaPath());
         if (Flags.verboseJVM) {
@@ -102,8 +102,8 @@ public class Main {
      * @param jarsForLaunch the jars to include
      * @return A classpath string with the jars provided+the classpath of the current java instance
      */
-    private static String makeCPString(List<URL> jarsForLaunch) {
-        List<String> classPathParts = jarsForLaunch.stream().map(URL::getPath).collect(Collectors.toList());
+    private static String makeCPString(List<File> jarsForLaunch) {
+        List<String> classPathParts = jarsForLaunch.stream().map(File::getPath).collect(Collectors.toList());
         classPathParts.add(System.getProperty("java.class.path"));
         return String.join(":", classPathParts);
     }
@@ -134,18 +134,18 @@ public class Main {
      * @return A list of all jars needed for launch
      * @throws IOException something went wrong, probably whilst trying to cache the jars
      */
-    private static List<URL> getJarsForLaunch(String codebase, Element resources) throws IOException {
+    private static List<File> getJarsForLaunch(String codebase, Element resources) throws IOException {
         ResourceCache cache = new SimpleCache();
         //Old java Version still include all libs required
         boolean oldJava = System.getProperty("java.version").startsWith("1.");
         System.out.println("Preparing java libraries for launch (this may take some seconds on the first launch or after an update)...");
-        List<URL> jarsToLoad = oldJava ? new LinkedList<>() :
+        List<File> jarsToLoad = oldJava ? new LinkedList<>() :
                 (Arrays.stream(LibManager.makeLibUrls())).map(x -> cache.get(x, true)).collect(Collectors.toList());
         NodeList jars = resources.getElementsByTagName("jar");
         for (int i = 0; i < jars.getLength(); i++) {
             Element jar = (Element) jars.item(i);
             URL href = new URL(codebase + "/" + jar.getAttribute("href"));
-            URL cached = cache.get(href, Flags.offline);
+            File cached = cache.get(href, Flags.offline);
             jarsToLoad.add(cached);
         }
         return jarsToLoad;

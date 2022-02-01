@@ -23,14 +23,14 @@ public class CacheTests {
     @Order(0)
     public void cache() throws Exception {
         String req = "https://github.com/TheMinefighter/StsLauncher/releases/download/v1.2/StsLauncher.jar";
-        URL cacheUrl = r.get(new URL(req), false);
-        assertEquals(15409, new File(cacheUrl.getFile()).length());
+        File cacheUrl = r.get(new URL(req), false);
+        assertEquals(15409, cacheUrl.length());
     }
     @Test
     @Order(10)
     public void License() throws Exception {
         String req = "https://github.com/TheMinefighter/StsLauncher/releases/download/v1.2/StsLauncher.jar";
-        URL cacheUrl = r.get(new URL(req), true);
+        File cacheUrl = r.get(new URL(req), true);
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final String utf8 = StandardCharsets.UTF_8.name();
         try (PrintStream ps = new PrintStream(baos, true, utf8)) {
