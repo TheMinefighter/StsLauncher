@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Implements IntegrationService partially for linux environments, assoc stiff is not implemented
+ * Implements IntegrationService partially for linux environments, assoc stuff is not implemented
  */
 @SuppressWarnings("unused")
 public class IntegrationServiceLinuxImpl implements IntegrationService {
@@ -32,22 +32,22 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 		return hasShortcut(false);
 	}
 
-	private File getDesktopFile() {
-		return new File(System.getProperty("user.home"), desktopFolder + dePrefix + JWSContext.getIdentifier() + fileType);
-	}
-
-	private File getMenuFile() {
-		return new File(System.getProperty("user.home"), menuFolder + mePrefix + JWSContext.getIdentifier() + fileType);
+    /**
+     * Retrieves the possibly existing desktop shortcut file for this jnlp
+     * @param menu whether to get the menu shortcut file
+     */
+	private File getDesktopFile(boolean menu) {
+		return new File(System.getProperty("user.home"),
+                menu ? (menuFolder + mePrefix):(desktopFolder + dePrefix) + JWSContext.getIdentifier() + fileType);
 	}
 
 	@Override
 	public boolean hasMenuShortcut() {
 		return hasShortcut(true);
-		//return Arrays.stream(new File(menuFolder).listFiles()).findAny().isPresent();
 	}
 
 	private boolean hasShortcut(boolean isMenu) {
-		return (isMenu? getMenuFile():getDesktopFile()).exists();
+		return getDesktopFile(isMenu).exists();
 	}
 
 
@@ -58,13 +58,7 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 
 	@Override
 	public boolean removeShortcuts() {
-
-		return getDesktopFile().delete() | removeMenuShortcut();
-	}
-
-	private boolean removeMenuShortcut() {
-		//return Arrays.stream(new File(menuFolder).listFiles()).anyMatch(File::delete);
-		return getMenuFile().delete();
+		return getDesktopFile(false).delete() | getDesktopFile(true).delete();
 	}
 
 	@Override
@@ -74,23 +68,15 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 
 	@Override
 	public boolean requestShortcut(boolean onDesktop, boolean inMenu, String subMenu) {
-		return (!onDesktop || makeDesktopShortcut()) & (!inMenu || makeMenuShortcut(subMenu));
+        //For Win use
+        //File file = new File(Paths.get(menuFolder, subMenu, mePrefix + JWSContext.getIdentifier() + fileType).toString());
+        //if (file.exists()) return false;
+
+        return (!onDesktop || makeShortcut(null, false)) & (!inMenu || makeShortcut(subMenu, true));
 	}
 
-	private boolean makeDesktopShortcut() {
-		return makeShortcut(null, false);
-	}
-
-	private boolean makeMenuShortcut(String subMenu) {
-		//For Win use
-		//File file = new File(Paths.get(menuFolder, subMenu, mePrefix + JWSContext.getIdentifier() + fileType).toString());
-		//if (file.exists()) return false;
-		return makeShortcut(subMenu, true);
-
-	}
-
-	private boolean makeShortcut(String subMenu, boolean isMenu) {
-		File desktopFile = isMenu? getMenuFile():getDesktopFile();
+    private boolean makeShortcut(String subMenu, boolean isMenu) {
+		File desktopFile = getDesktopFile(isMenu);
 		if (hasShortcut(isMenu)) return false;
 		String desktopFileContent = makeDeFString(subMenu);
 		try {
@@ -116,6 +102,11 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 		return sb.toString();
 	}
 
+    /**
+     * Generates the Map of data to write into a desktop file
+     * @param subMenu the submenu requested or null
+     * @return the Map of data to write into a desktop file
+     */
 	private Map<String, String> makeDeFData(String subMenu) {
 		Map<String, String> r = new HashMap<>();
 		r.put("Version", "1.5");
@@ -137,6 +128,10 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 		return r;
 	}
 
+    /**
+     * Creates an exec string to launch this jnlp
+     * @return an exec string to launch this jnlp
+     */
 	private String makeExec() {
 		if (JavaUtilities.isJar()) {
 			return String.format("%s -jar %s %s", JavaUtilities.getJavaPath(), JWSContext.getLocalStsLauncherJarPath(), JWSContext.getLocalJNLP());

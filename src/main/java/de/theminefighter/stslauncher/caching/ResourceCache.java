@@ -14,5 +14,12 @@ public interface ResourceCache {
      * @return the URL of the cached resource
      */
 	 File get(URL remoteResource, boolean noUpdate) ;
+
+    /**
+     * Stores a given file in the local cache to be found under the given URL
+     * @param file the file to store
+     * @param id the id to store it under
+     * @return the file stored
+     */
 	 File storeLocal(File file,URL id);
 }

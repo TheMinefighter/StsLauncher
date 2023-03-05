@@ -37,6 +37,11 @@ public class Main {
         }
     }
 
+    /**
+     * checks whether the --show-license-files parameter is used, if not it informs the user about it's existence
+     * @param args the args the program received
+     * @return whether slf is specified
+     */
     private static boolean checkSLF(String[] args) {
         boolean slf = args.length > 1 && args[1].equals("--show-license-files");
         if (!slf)
@@ -44,6 +49,11 @@ public class Main {
         return slf;
     }
 
+    /**
+     * Provides an interactive cli if no args are provided
+     * @return an array of args to be treated as cli args
+     * @throws IOException when the user does bs
+     */
     private static String[] interactionNoJnlpProvided() throws IOException {
         String[] args;
         System.out.println("Please enter the path of the jnlp to launch");

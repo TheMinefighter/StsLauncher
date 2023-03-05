@@ -39,11 +39,11 @@ public class SimpleCache implements ResourceCache {
 	}
 
 	@Override
-	public File storeLocal(File src, URL id) {
+	public File storeLocal(File file, URL id) {
 		File cacheFile = getFileByUrl(id);
-		if (!cacheFile.exists() || cacheFile.length() != src.length()) {
+		if (!cacheFile.exists() || cacheFile.length() != file.length()) {
 			try {
-				Files.copy(src.toPath(), cacheFile.toPath(), REPLACE_EXISTING);
+				Files.copy(file.toPath(), cacheFile.toPath(), REPLACE_EXISTING);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -94,7 +94,7 @@ public class SimpleCache implements ResourceCache {
 		HttpsURLConnection connection = (HttpsURLConnection) remoteResource.openConnection();
 		if (localCache.exists()) {
 			if (noUpdate) return;
-			connection.setIfModifiedSince(localCache.lastModified());
+			connection.setIfModifiedSince(localCache.lastModified()-10000);
 		}
 		connection.connect();
 		switch (connection.getResponseCode()) {
