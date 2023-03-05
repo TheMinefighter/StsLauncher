@@ -6,8 +6,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,12 +19,12 @@ import java.util.stream.IntStream;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        if (args.length == 0)
-            throw new Exception("A jnlp file must be provided for launch");
+        if (args.length == 0) {
+            args = interactionNoJnlpProvided();
+            if (args == null) return;
+        }
 
-        boolean slf = args.length > 1 && args[1].equals("--show-license-files");
-        if (!slf)
-            System.out.println("Use --show-license-files as second argument to show the license files of all libraries used.");
+        boolean slf = checkSLF(args);
         ProcessBuilder pb = new ProcessBuilder(prepareLaunch(args[0], slf));
         makeEnv(pb.environment());
         if (Flags.forwardSTSProcessIO) {
@@ -33,6 +35,35 @@ public class Main {
         if (Flags.forwardSTSProcessIO) {
             STSProcess.waitFor();
         }
+    }
+
+    private static boolean checkSLF(String[] args) {
+        boolean slf = args.length > 1 && args[1].equals("--show-license-files");
+        if (!slf)
+            System.out.println("Use --show-license-files as second argument to show the license files of all libraries used.");
+        return slf;
+    }
+
+    private static String[] interactionNoJnlpProvided() throws IOException {
+        String[] args;
+        System.out.println("Please enter the path of the jnlp to launch");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String str = reader.readLine();
+        if (str.length()==0) {
+            System.out.println("No file provided. Exiting");
+            return null;
+        }
+        File f= new File(str);
+        if (!f.exists()) {
+            System.out.println("The file specified does not exist");
+            return null;
+        }
+        if (f.isDirectory()) {
+            System.out.println("The path is a directory and not a file");
+            return null;
+        }
+        args= new String[]{f.toString()};
+        return args;
     }
 
     /**
