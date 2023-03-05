@@ -7,7 +7,7 @@ Install an openjdk from 8 to 17 (Version codes have to be cleared by STS devs, f
 Download a jnlp file to run.
 Run `java -jar PathToStsLauncher.jar PathToJnlp.jnlp`
 If you have multiple Java versions on your computer you will have to specify the full path for java.
-You can create a shortcut to make this easier. The automatic shortcut creation through javax.jnlp will currently fail.
+You will only have to this once since a desktop/menu shortcut will be created by StsLauncher if the jnlp requests that (most do).
 # Problems
 None that I am aware of as of version 1.2.0
 # Other stuff
@@ -28,12 +28,12 @@ The javax.jnlp-package contains a basic mock of some jnlp functionality to preve
 ## Launch procedure
 First of all the program arguments (jnlp file and show-license-files option) will be read.
 Then the jnlp file will be parsed and the jars referenced in it will be cached.
-If executed on JREs > 1.8 a list of maven packages in src/main/resources/de/theminefighter/stslauncher/MavenList.csv will be cached an loaded into the new classpath.
+If executed on JREs > 1.8 a list of maven packages in src/main/resources/de/theminefighter/stslauncher/MavenList.csv will be cached and loaded into the new classpath.
 If the --show-license-files option was used, all jar archives will be loaded and any license files in them will be printed to console.
 Then the arguments of the new JVM to be launched are being build, based on all of this.
 In the end the new JVM process will be launched.
 ## CI 
-This project has tests using junit. Most of them are automatically executed with any merge/push to master (one of them can;t because it tests the full launch procedure of STS, which is not possible on a system w/o GUI support).
+This project has tests using junit. Most of them are automatically executed with any merge/push to master (one of them can't because it tests the full launch procedure of STS, which is not possible on a system w/o GUI support).
 This is realized with github actions.
 
-Build are also done using maven package, although not (yet) automated.
+Builds are also done using maven package, although not (yet) automated.
