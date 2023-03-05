@@ -69,7 +69,7 @@ public class SimpleCache implements ResourceCache {
 	 * @apiNote I use a Hash, because for long urls any two way encoding (like B64) would be to long and therefore illegal in some Operating systems.
 	 * SHA256 is used specifically for it's balance between security and length and it's wide adoption. The result is then encoded in B64.
 	 * I know that this does drastically reduces security under case invariant filesystems.
-	 * Though the safety is still on the level of SHA224 with tha, which is enough for now.
+	 * Though the safety is still on the level of SHA224 with that, which is enough for now.
 	 */
 	public static String toOsCompliantFileName(String remoteResource) {
 		MessageDigest md = null;
