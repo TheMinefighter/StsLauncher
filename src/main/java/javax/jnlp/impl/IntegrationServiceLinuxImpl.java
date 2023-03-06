@@ -38,7 +38,7 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
      */
 	private File getDesktopFile(boolean menu) {
 		return new File(System.getProperty("user.home"),
-                menu ? (menuFolder + mePrefix):(desktopFolder + dePrefix) + JWSContext.getIdentifier() + fileType);
+				(menu ? (menuFolder + mePrefix):(desktopFolder + dePrefix)) + JWSContext.getIdentifier() + fileType);
 	}
 
 	@Override
