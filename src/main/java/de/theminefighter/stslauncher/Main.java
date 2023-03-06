@@ -3,7 +3,9 @@ package de.theminefighter.stslauncher;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.jnlp.impl.IntegrationServiceLinuxImpl;
+import javax.jnlp.IntegrationService;
+import javax.jnlp.ServiceManager;
+import javax.jnlp.UnavailableServiceException;
 import javax.jnlp.impl.JWSContext;
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,6 +41,13 @@ public class Main {
 	 * Creates the shortcuts requested by the jnlp file that is currently executed
 	 */
 	public static void createRequestedShortcuts() {
+		IntegrationService is;
+		try {
+			is= (IntegrationService) ServiceManager.lookup("javax.jnlp.IntegrationService");
+		} catch (UnavailableServiceException e) {
+			return;
+		}
+
 		Element info =JWSContext.getInformation();
 		NodeList scs=info.getElementsByTagName("shortcut");
 		if (scs.getLength()>0) {
@@ -50,7 +59,7 @@ public class Main {
 			if (menu&& menuNs.item(0).getAttributes().getNamedItem("submenu")!=null) {
 				submenu=menuNs.item(0).getAttributes().getNamedItem("submenu").getNodeValue();
 			}
-			new IntegrationServiceLinuxImpl().requestShortcut(desktop,menu,submenu);
+			is.requestShortcut(desktop,menu,submenu);
 		}
 	}
 
