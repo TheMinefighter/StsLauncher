@@ -9,11 +9,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CacheTests {
     final ResourceCache r = new SimpleCache();
@@ -41,4 +41,9 @@ public class CacheTests {
         String data = baos.toString(utf8);
         assertTrue(data.contains("Permission is hereby granted, free of charge, to any person obtaining a copy"));
     }
+
+	@Test
+	public void basics() throws MalformedURLException {
+		assertFalse(r.has(new URL("riugherjkhglierhngkjsrb.de")));
+	}
 }
