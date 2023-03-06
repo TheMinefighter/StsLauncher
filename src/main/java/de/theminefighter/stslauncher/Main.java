@@ -5,6 +5,8 @@ import de.theminefighter.stslauncher.caching.SimpleCache;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import javax.jnlp.impl.IntegrationServiceLinuxImpl;
+import javax.jnlp.impl.JWSContext;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,8 +25,10 @@ public class Main {
             args = interactionNoJnlpProvided();
             if (args == null) return;
         }
+		System.setProperty("jnlpx.origFilenameArg", args[0]);
+		createRequestedShortcuts();
 
-        boolean slf = checkSLF(args);
+		boolean slf = checkSLF(args);
         ProcessBuilder pb = new ProcessBuilder(prepareLaunch(args[0], slf));
         makeEnv(pb.environment());
         if (Flags.forwardSTSProcessIO) {
@@ -37,7 +41,26 @@ public class Main {
         }
     }
 
-    /**
+	/**
+	 * Creates the shortcuts requested by the jnlp file that is currently executed
+	 */
+	private static void createRequestedShortcuts() {
+		Element info =JWSContext.getInformation();
+		NodeList scs=info.getElementsByTagName("shortcut");
+		if (scs.getLength()>0) {
+			Element sc=(Element) scs.item(0);
+			boolean desktop=sc.getElementsByTagName("desktop").getLength()>0;
+			NodeList menuNs=sc.getElementsByTagName("menu");
+			boolean menu=menuNs.getLength()>0;
+			String submenu=null;
+			if (menu&& menuNs.item(0).getAttributes().getNamedItem("submenu")!=null) {
+				submenu=menuNs.item(0).getAttributes().getNamedItem("submenu").getNodeValue();
+			}
+			new IntegrationServiceLinuxImpl().requestShortcut(desktop,menu,submenu);
+		}
+	}
+
+	/**
      * checks whether the --show-license-files parameter is used, if not it informs the user about it's existence
      * @param args the args the program received
      * @return whether slf is specified
