@@ -52,6 +52,10 @@ public class JWSContext {
 		return information;
 	}
 
+	public static ResourceCache getCache() {
+		return cache;
+	}
+
 	public static String getIdentifier() {
 		return SimpleCache.toOsCompliantFileName(getRoot().getAttribute("href"));
 	}
