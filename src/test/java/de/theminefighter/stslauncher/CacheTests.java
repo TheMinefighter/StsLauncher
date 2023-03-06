@@ -44,6 +44,6 @@ public class CacheTests {
 
 	@Test
 	public void basics() throws MalformedURLException {
-		assertFalse(r.has(new URL("riugherjkhglierhngkjsrb.de")));
+		assertFalse(r.has(new URL("http://riugherjkhglierhngkjsrb.de")));
 	}
 }
