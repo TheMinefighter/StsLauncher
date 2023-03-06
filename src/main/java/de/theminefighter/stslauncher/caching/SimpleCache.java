@@ -52,6 +52,12 @@ public class SimpleCache implements ResourceCache {
 
 	}
 
+	@Override
+	public boolean has(URL id) {
+		File cacheFile = getFileByUrl(id);
+		return cacheFile.exists();
+	}
+
 	/**
 	 * Builds the path under which a given remote resource might be cached
 	 * @param remoteResource the resource to cache

@@ -22,4 +22,11 @@ public interface ResourceCache {
      * @return the file stored
      */
 	 File storeLocal(File file,URL id);
+
+	/**
+	 * Checks whether the cache contains an entry for a given URL
+	 * @param id the URL to check for
+	 * @return whether it is cached
+	 */
+	boolean has(URL id);
 }
