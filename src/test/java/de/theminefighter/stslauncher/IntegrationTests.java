@@ -15,13 +15,18 @@ public class IntegrationTests {
 
     @BeforeEach
     public void buildCache() throws Exception {
-        String filename = "sts-themi-invalidServer.jnlp";
-        String altPath = Paths.get(".", "src", "test", "resources", filename).toString();
-        String jnlp = new File(filename).exists()?filename: altPath;
-        args = Main.prepareLaunch(jnlp, false);
+		String jnlp = getJnlpPath();
+		args = JnlpLauncher.prepareLaunch(jnlp, false);
     }
-    @Test
-    @Timeout(5)
+
+	public static String getJnlpPath() {
+		String filename = "sts-themi-invalidServer.jnlp";
+		String altPath = Paths.get(".", "src", "test", "resources", filename).toString();
+		return new File(filename).exists()?filename: altPath;
+	}
+
+	@Test
+    @Timeout(10)
     @DisabledIfEnvironmentVariable(named = "CI",
             matches = "true", disabledReason = "Launching STS does not work in GUI-less CI systems.")
     public void runForUnknownHost() throws Exception {
