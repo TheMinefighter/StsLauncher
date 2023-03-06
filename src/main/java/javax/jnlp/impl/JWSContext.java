@@ -16,8 +16,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class JWSContext {
-
-
 	private static Element root;
 	private static Element information;
 	private static ResourceCache cache;
@@ -33,6 +31,11 @@ public class JWSContext {
 		ini(System.getProperty("jnlpx.origFilenameArg"));
 	}
 
+	/**
+	 * Initializes the JWSContext using the path to the jnlp file
+	 *
+	 * @param jnlp the path to the jnlp file
+	 */
 	private static void ini(String jnlp) {
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 		Document parse;
