@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+" codebase="https://www.stellwerksim.de"
-	  href="https://www.stellwerksim.de/download-jnlp.php?token=006139ea66d8b8">
+	  href="https://www.stellwerksim.de/download-jnlp.php?token=00000000000000">
 	<information>
 		<title>StellwerkSim</title>
 		<vendor>JS</vendor>
