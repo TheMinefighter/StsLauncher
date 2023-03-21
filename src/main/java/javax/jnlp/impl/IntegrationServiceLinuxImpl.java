@@ -5,9 +5,8 @@ import de.theminefighter.stslauncher.JavaUtilities;
 import de.theminefighter.stslauncher.Main;
 
 import javax.jnlp.IntegrationService;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,9 +80,11 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 		String desktopFileContent = makeDeFString(subMenu);
 		try {
 			if (!desktopFile.getParentFile().exists() || !desktopFile.createNewFile()) return false;
-			FileWriter fileWriter = new FileWriter(desktopFile, false);
+			FileOutputStream fos = new FileOutputStream(desktopFile);
+			OutputStreamWriter fileWriter = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
 			fileWriter.write(desktopFileContent);
 			fileWriter.close();
+			fos.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
