@@ -3,7 +3,7 @@
 StsLauncher is an openjdk compatible jnlp (javaws) launcher build specifically to fulfill the needs of stellwerksim.de
 # How to use
 Get the jar from [the release page](https://github.com/TheMinefighter/StsLauncher/releases/)
-Install an openjdk from 8 to 17 (Version codes have to be cleared by STS devs, for whatever reasons).
+Install an openjdk from 8 to 21 (Version codes have to be cleared by STS devs, for whatever reasons).
 Download a jnlp file to run.
 Run `java -jar PathToStsLauncher.jar PathToJnlp.jnlp`
 If you have multiple Java versions on your computer you may have to specify the full path for java.
