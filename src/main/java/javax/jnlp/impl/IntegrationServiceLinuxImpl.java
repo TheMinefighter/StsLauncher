@@ -14,7 +14,7 @@ import java.util.Map;
  * Implements IntegrationService partially for linux environments, assoc stuff is not implemented
  */
 @SuppressWarnings("unused")
-public class IntegrationServiceLinuxImpl implements IntegrationService {
+public class IntegrationServiceLinuxImpl implements IntegrationService, JnlpServiceImpl {
 	private static final String desktopFolder = "/Desktop/";
 	private static final String menuFolder = "/.local/share/applications/";
 	private static final String dePrefix = "stsLauncher.DesktopSc_";
