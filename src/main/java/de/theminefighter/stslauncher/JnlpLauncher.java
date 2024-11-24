@@ -5,15 +5,21 @@ import de.theminefighter.stslauncher.caching.SimpleCache;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import javax.jnlp.impl.JWSContext;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class JnlpLauncher {
+
+	public static final String DEFAULT_POLICY = "grant {permission java.net.SocketPermission \"localhost:1024-\", \"accept,listen,resolve\";};";
+
 	public static void Launch(String jnlpPath, boolean slf) throws Exception {
 		ProcessBuilder pb = new ProcessBuilder(prepareLaunch(jnlpPath, slf));
 		makeEnv(pb.environment());
@@ -104,7 +110,7 @@ public class JnlpLauncher {
 	 * @param resources the resources element of the jnlp
 	 * @return a map of all props to set for the new JVM instance
 	 */
-	private static Map<String, String> makeJVMProps(Element resources,String jnlpPath) {
+	private static Map<String, String> makeJVMProps(Element resources, String jnlpPath) {
 		Map<String, String> launchProps = Flags.forwardProps ? System.getProperties().stringPropertyNames()
 				.stream().collect(Collectors.toMap(propN -> propN, System::getProperty, (a, b) -> b)) : new HashMap<>();
 		NodeList props = resources.getElementsByTagName("property");
@@ -113,7 +119,22 @@ public class JnlpLauncher {
 		//filter jvm prop telling the jvm to start StsLauncher
 		launchProps.remove("java.class.path");
 		launchProps.put("file.encoding", "UTF-8");
+		launchProps.put("java.security.policy","/home/tobias/IdeaProjects/StsLauncher/src/main/resources/security.policy");
 		launchProps.put("jnlpx.origFilenameArg",jnlpPath);
+		URL policy;
+		try {
+			policy = new URL("https://github.com/TheMinefighter/StsLauncher/releases/latest/download/default-jnlp-security.policy");
+		} catch (MalformedURLException e) {
+			throw new RuntimeException("This does not happen");
+		}
+		if (!JWSContext.getCache().has(policy)) {
+			try (PrintWriter printWriter = new PrintWriter(JWSContext.getCache().writeStream(policy))) {
+				printWriter.print(DEFAULT_POLICY);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		launchProps.put("java.security.policy", JWSContext.getCache().get(policy, true).getAbsolutePath());
 		return launchProps;
 	}
 

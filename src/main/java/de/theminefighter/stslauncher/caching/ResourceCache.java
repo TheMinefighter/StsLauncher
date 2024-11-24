@@ -1,6 +1,7 @@
 package de.theminefighter.stslauncher.caching;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.net.URL;
 
 /**
@@ -22,6 +23,8 @@ public interface ResourceCache {
      * @return the file stored
      */
 	 File storeLocal(File file,URL id);
+
+	OutputStream writeStream(URL id);
 
 	/**
 	 * Checks whether the cache contains an entry for a given URL
