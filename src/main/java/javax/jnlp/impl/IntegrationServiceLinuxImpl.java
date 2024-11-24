@@ -45,6 +45,11 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 		return hasShortcut(true);
 	}
 
+	/**
+	 * Whether a .desktop shortcut exists
+	 * @param isMenu whether to look for a menu or a shortcut
+	 * @return whether a shortcut exists
+	 */
 	private boolean hasShortcut(boolean isMenu) {
 		return getDesktopFile(isMenu).exists();
 	}
@@ -74,6 +79,12 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
         return (!onDesktop || makeShortcut(null, false)) & (!inMenu || makeShortcut(subMenu, true));
 	}
 
+	/**
+	 * Creates a .desktop Shortcut
+	 * @param subMenu The submenu to put the application into or null, if none
+	 * @param isMenu whether it should be a menu or desktop shortcut
+	 * @return whether a shortcut has been created
+	 */
     private boolean makeShortcut(String subMenu, boolean isMenu) {
 		File desktopFile = getDesktopFile(isMenu);
 		if (hasShortcut(isMenu)) return false;
@@ -125,7 +136,6 @@ public class IntegrationServiceLinuxImpl implements IntegrationService {
 		r.put("Terminal", "false");
 		r.put("Type", "Application");
 		r.put("Name", JWSContext.getInformation().getElementsByTagName("title").item(0).getFirstChild().getNodeValue());
-
 		return r;
 	}
 
