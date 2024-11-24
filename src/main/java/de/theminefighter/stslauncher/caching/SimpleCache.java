@@ -2,7 +2,9 @@ package de.theminefighter.stslauncher.caching;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,6 +24,7 @@ public class SimpleCache implements ResourceCache {
 
 	/**
 	 * Initializes a new cache
+	 *
 	 * @throws IOException when the cache dir cannot be found or created
 	 */
 	public SimpleCache() throws IOException {
@@ -50,6 +53,16 @@ public class SimpleCache implements ResourceCache {
 		}
 		return cacheFile;
 
+	}
+
+	@Override
+	public OutputStream writeStream(URL id) {
+		File cacheFile = getFileByUrl(id);
+		try {
+			return new FileOutputStream(cacheFile, false);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
