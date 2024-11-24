@@ -8,8 +8,10 @@ Download a jnlp file to run.
 Run `java -jar PathToStsLauncher.jar PathToJnlp.jnlp`
 If you have multiple Java versions on your computer you may have to specify the full path for java.
 
-A shortcut for this will be created at the first launch (if the jnlp requests it, sts does so; under linux only)
+A shortcut for this will be created at the first launch
+(if the jnlp requests it, sts does so; under linux only)
 
+Files are stored in a subfolder called STSLauncher in your `userdir`
 ## Security and goals of the project
 I know that RCE attacks are possible, if an attacker gains control over the server referenced in the jnlp.
 The standard jnlp of STS just requests all permissions, 
@@ -23,8 +25,9 @@ and as explained it would not really benefit stellwerksim.
 If you feel like wasting your lifetime you can submit a merge request for that though. 
 # License
 This project is published under the MIT-License.
+This does not apply to all test resources.
 # How it works / Developers Guide
-Starting v1.2 the only thing this program does is downloading stuff and starting a java commandline based on the jnlp. Nothing less and nothing more.
+Starting v1.2 the program is mainly downloading dependencies of the jnlp and starting a java process based on the jnlp.
 ## Structure
 The `de.theminefighter.stslauncher`-package contains the core of the project including the main class.
 The `de.theminefighter.stslauncher.caching`-package contains the caching infrastructure for improved load times.
@@ -45,6 +48,8 @@ In the end the new JVM process will be launched with the launched class being th
 ## CI 
 This project has tests using junit.
 Most of them are automatically executed with any merge/push to master. 
+
+
 (one of them can't because it tests the full launch procedure of STS, which is not possible on a system w/o GUI support)
 This is realized using github actions.
 

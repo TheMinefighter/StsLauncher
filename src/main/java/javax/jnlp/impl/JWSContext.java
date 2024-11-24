@@ -75,7 +75,7 @@ public class JWSContext {
 		try {
 			return cache.get(new URL(getRoot().getAttribute("href")), true);
 		} catch (MalformedURLException e) {
-			return null;
+			throw new RuntimeException("This does not happen");
 		}
 	}
 
@@ -83,6 +83,10 @@ public class JWSContext {
 		return root;
 	}
 
+	/**
+	 * Obtains path to STSLauncher that is probably permanently accessible
+	 * @return a path to STSLauncher that is probably permanently accessible
+	 */
 	public static File getLocalStsLauncherJarPath() {
 		try {
 			final String spec = "https://github.com/TheMinefighter/StsLauncher/releases/latest/download/StsLauncher.jar";

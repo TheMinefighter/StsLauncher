@@ -110,6 +110,7 @@ public class JnlpLauncher {
 		NodeList props = resources.getElementsByTagName("property");
 		IntStream.range(0, props.getLength()).mapToObj(i1 -> (Element) props.item(i1))
 				.forEach(prop -> launchProps.put(prop.getAttribute("name"), prop.getAttribute("value")));
+		//filter jvm prop telling the jvm to start StsLauncher
 		launchProps.remove("java.class.path");
 		launchProps.put("file.encoding", "UTF-8");
 		launchProps.put("jnlpx.origFilenameArg",jnlpPath);
@@ -131,6 +132,7 @@ public class JnlpLauncher {
 		System.out.println("Preparing java libraries for launch (this may take some seconds on the first launch or after an update)...");
 		List<File> jarsToLoad = oldJava ? new LinkedList<>() :
 				(Arrays.stream(LibManager.makeLibUrls())).map(x -> cache.get(x, true)).collect(Collectors.toList());
+		//Fixed version maven download urls won't change, so no check for newer versions is needed
 		NodeList jars = resources.getElementsByTagName("jar");
 		for (int i = 0; i < jars.getLength(); i++) {
 			Element jar = (Element) jars.item(i);
