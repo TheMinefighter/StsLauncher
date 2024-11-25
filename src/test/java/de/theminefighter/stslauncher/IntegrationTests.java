@@ -19,6 +19,7 @@ public class IntegrationTests {
 
     @BeforeEach
     public void buildCache() throws Exception {
+		System.setProperty("jnlpx.origFilenameArg", IntegrationTests.getJnlpPath());
 		String jnlp = getJnlpPath();
 		args = JnlpLauncher.prepareLaunch(jnlp, false);
     }
@@ -34,7 +35,7 @@ public class IntegrationTests {
     @DisabledIfEnvironmentVariable(named = "CI",
             matches = "true", disabledReason = "Launching STS does not work in GUI-less CI systems.")
     public void runForUnknownHost() throws Exception {
-        ProcessBuilder pb = new ProcessBuilder(args);
+		ProcessBuilder pb = new ProcessBuilder(args);
         pb.redirectErrorStream(true);
         stsProcess = pb.start();
 
@@ -52,7 +53,6 @@ public class IntegrationTests {
 	@DisabledIfEnvironmentVariable(named = "CI",
 			matches = "true", disabledReason = "Desktop and menu folder are not available in CI")
 	public void InitialShortCutTest() {
-		System.setProperty("jnlpx.origFilenameArg", IntegrationTests.getJnlpPath());
 		Main.createRequestedShortcuts();
 		IntegrationServiceLinuxImpl isl = new IntegrationServiceLinuxImpl();
 		assertTrue(isl.hasDesktopShortcut());

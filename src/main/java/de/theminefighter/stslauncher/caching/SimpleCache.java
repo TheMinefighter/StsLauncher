@@ -16,11 +16,14 @@ import java.util.Base64;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+/**
+ * Implements a permanent filesystem backed cache in .local or AppData
+ */
 public class SimpleCache implements ResourceCache {
 	/**
 	 * The root dir of this cache
 	 */
-	private static final Path cacheRoot = Paths.get(System.getProperty("user.home"), "STSLauncher");
+	private final Path cacheRoot;
 
 	/**
 	 * Initializes a new cache
@@ -28,9 +31,43 @@ public class SimpleCache implements ResourceCache {
 	 * @throws IOException when the cache dir cannot be found or created
 	 */
 	public SimpleCache() throws IOException {
+		cacheRoot = getRootPath();
 		if (!Files.exists(cacheRoot)) Files.createDirectory(cacheRoot.toAbsolutePath());
 	}
 
+	private static Path getRootPath() {
+		Path basePath = Paths.get(System.getProperty("user.home"));
+		if (System.getProperty("os.name").contains("Linux"))
+			basePath = basePath.resolve(".local").resolve("share");
+		else if (System.getProperty("os.name").contains("Windows")) {
+			basePath = basePath.resolve("AppData").resolve("Roaming");
+		}
+		return basePath.resolve("STSLauncher");
+	}
+
+	/**
+	 * Creates a (close to) unique String from a given URL, which is compliant with the file name rules of most operating systems
+	 *
+	 * @param remoteResource the URL to encode into the filename
+	 * @return B64 encoded Sha256 hash of input w/o padding
+	 * @apiNote I use a Hash, because for long urls any two way encoding (like B64) would be to long and therefore illegal in some Operating systems.
+	 * SHA256 is used specifically for it's balance between security and length and it's wide adoption. The result is then encoded in B64.
+	 * I know that this does drastically reduces security under case invariant filesystems.
+	 * Though the safety is still on the level of SHA224 with that, which is enough for now.
+	 */
+	public static String toOsCompliantFileName(String remoteResource) {
+		MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("SHA-256");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+
+		assert md != null; //Safe, as any Java platform is REQUIRED to provide SHA256
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(md.digest(remoteResource.getBytes(StandardCharsets.UTF_8)));
+	}
+
+	@Override
 	public File get(URL remoteResource, boolean noUpdate) {
 		File f = getFileByUrl(remoteResource);
 		try {
@@ -52,7 +89,6 @@ public class SimpleCache implements ResourceCache {
 			}
 		}
 		return cacheFile;
-
 	}
 
 	@Override
@@ -73,6 +109,7 @@ public class SimpleCache implements ResourceCache {
 
 	/**
 	 * Builds the path under which a given remote resource might be cached
+	 *
 	 * @param remoteResource the resource to cache
 	 * @return a File object, describing were to cache the given remote resource
 	 */
@@ -82,28 +119,8 @@ public class SimpleCache implements ResourceCache {
 	}
 
 	/**
-	 * Creates a (close to) unique String from a given URL, which is compliant with the file name rules of most operating systems
-	 * @param remoteResource the URL to encode into the filename
-	 * @return B64 encoded Sha256 hash of input
-	 * @apiNote I use a Hash, because for long urls any two way encoding (like B64) would be to long and therefore illegal in some Operating systems.
-	 * SHA256 is used specifically for it's balance between security and length and it's wide adoption. The result is then encoded in B64.
-	 * I know that this does drastically reduces security under case invariant filesystems.
-	 * Though the safety is still on the level of SHA224 with that, which is enough for now.
-	 */
-	public static String toOsCompliantFileName(String remoteResource) {
-		MessageDigest md = null;
-		try {
-			md = MessageDigest.getInstance("SHA-256");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-
-		assert md != null; //Safe, as any Java platform is REQUIRED to provide SHA256
-		return Base64.getUrlEncoder().encodeToString(md.digest(remoteResource.getBytes(StandardCharsets.UTF_8)));
-	}
-
-	/**
 	 * Ensures that a given resource is cached under a given path
+	 *
 	 * @param remoteResource the resource to check
 	 * @param localCache     the local to check
 	 * @param noUpdate       whether to prevent the cache from updating, if a new Version of the resource is available
@@ -113,7 +130,9 @@ public class SimpleCache implements ResourceCache {
 		HttpsURLConnection connection = (HttpsURLConnection) remoteResource.openConnection();
 		if (localCache.exists()) {
 			if (noUpdate) return;
-			connection.setIfModifiedSince(localCache.lastModified()-10000);
+			//Time in ms that is assumed to be greater than any delay between requesting a file and the file being fully written to disc (m_time is set).
+			final int maxWriteDelay = 10000;
+			connection.setIfModifiedSince(localCache.lastModified() - maxWriteDelay);
 		}
 		connection.connect();
 		switch (connection.getResponseCode()) {

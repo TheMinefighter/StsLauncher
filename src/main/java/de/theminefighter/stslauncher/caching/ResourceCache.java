@@ -24,6 +24,11 @@ public interface ResourceCache {
      */
 	 File storeLocal(File file,URL id);
 
+	/**
+	 * Obtains a stream to fill a cache entry
+	 * @param id the url of the cache entry to access
+	 * @return an OutputStream that the caller MUST close
+	 */
 	OutputStream writeStream(URL id);
 
 	/**

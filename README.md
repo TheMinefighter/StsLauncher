@@ -13,16 +13,14 @@ A shortcut for this will be created at the first launch
 
 Files are stored in a subfolder called STSLauncher in your `userdir`
 ## Security and goals of the project
-I know that RCE attacks are possible, if an attacker gains control over the server referenced in the jnlp.
-The standard jnlp of STS just requests all permissions, 
-therefore there is no security difference, between launching the jnlp in javaws or using this project.
+Except allowing accept, listen and resolve on port 1024+ your standard java security policy will be used. 
+(SEE DEFAULT_POLICY in JnlpLauncher class, if you need something else edit xsMRPV5vhtNOOHLq7vcd55ZokCJfMUduc1oMsTp7t2k in your cache)
 
-It is hypothetically possible to implement the security specified by the JNLP spec ontop of openjdk
-w/o the need to modify the java installation using alternative classloader.
-I do not plan on doing that. It would increase the size of the codebase by approximately 8x.
-This project is aiming at making the usage of stellwerksim possible and not at fully realizing the jnlp spec, 
-and as explained it would not really benefit stellwerksim.
-If you feel like wasting your lifetime you can submit a merge request for that though. 
+Further permission management as envisioned by the jnlp spec is not implemented.
+The standard jnlp of STS just requests all permissions, therefore there is no security deficit, when using this project over javaws in this case.
+
+It is hypothetically possible to implement the security specified by the JNLP spec on top of openjdk
+You can submit a merge request for that, I do not plan to do that.
 # License
 This project is published under the MIT-License.
 This does not apply to all test resources.
@@ -49,8 +47,7 @@ In the end the new JVM process will be launched with the launched class being th
 This project has tests using junit.
 Most of them are automatically executed with any merge/push to master. 
 
-
-(one of them can't because it tests the full launch procedure of STS, which is not possible on a system w/o GUI support)
+(two of them can't because it tests the full launch procedure of STS, which is not possible on a system w/o GUI support)
 This is realized using github actions.
 
 Builds are also done using maven package, although not (yet) automated.
