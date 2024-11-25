@@ -13,8 +13,8 @@ A shortcut for this will be created at the first launch
 
 Files are stored in a subfolder called STSLauncher in your `userdir`
 ## Security and goals of the project
-Except allowing accept, listen and resolve on port 1024+ your standard java security policy will be used. 
-(SEE DEFAULT_POLICY in JnlpLauncher class, if you need something else edit xsMRPV5vhtNOOHLq7vcd55ZokCJfMUduc1oMsTp7t2k in your cache)
+Except allowing accept, listen and resolve on port 1024+on localhost, your standard java security policy will be used. 
+(SEE DEFAULT_POLICY in JnlpLauncher class, if you need something else edit `xsMRPV5vhtNOOHLq7vcd55ZokCJfMUduc1oMsTp7t2k` in your cache)
 
 Further permission management as envisioned by the jnlp spec is not implemented.
 The standard jnlp of STS just requests all permissions, therefore there is no security deficit, when using this project over javaws in this case.
