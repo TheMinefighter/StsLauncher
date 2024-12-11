@@ -19,11 +19,15 @@ Except allowing accept, listen and resolve on port 1024+on localhost, your stand
 Further permission management as envisioned by the jnlp spec is not implemented.
 The standard jnlp of STS just requests all permissions, therefore there is no security deficit, when using this project over javaws in this case.
 
-It is hypothetically possible to implement the security specified by the JNLP spec on top of openjdk
+It is hypothetically possible to implement the security specified by the JNLP spec on top of openjdk.
 You can submit a merge request for that, I do not plan to do that.
+
+There is no validation of jar signatures implmented as of now, and I do not plan to change that, due to the fact that any attacker which is able to manipulate the cache of sts-launcher would be able to manipulate its desktop shortcut as well. Also Stellwerksim jars are not correctly signed anyways.
 # License
 This project is published under the MIT-License.
-This does not apply to all test resources.
+This does not apply to all test resources (STSlauncher jnlp file), nor to all libaries used at runtime.
+Build results are distributed under MIT license, as they only use MIT licensed code.
+License files of libraries can be displayed using the `--show-license-files` argument.
 # How it works / Developers Guide
 Starting v1.2 the program is mainly downloading dependencies of the jnlp and starting a java process based on the jnlp.
 ## Structure
