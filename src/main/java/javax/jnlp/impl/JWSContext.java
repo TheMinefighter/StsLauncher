@@ -64,19 +64,12 @@ public class JWSContext {
 		NodeList iconTags = getInformation().getElementsByTagName("icon");
 		if (iconTags.getLength() == 0) return null;
 		String href = ((Element) iconTags.item(0)).getAttribute("href");
-		try {
-			return cache.get(new URL(getRoot().getAttribute("codebase") + href), true);
-		} catch (MalformedURLException e) {
-			return null;
-		}
+		return cache.get(JavaUtilities.resolveHref(href), true);
 	}
 
 	public static File getLocalJNLP() {
-		try {
-			return cache.get(new URL(getRoot().getAttribute("href")), true);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("This does not happen");
-		}
+		return cache.get(JavaUtilities.resolveHref(getRoot().getAttribute("href")), true);
+
 	}
 
 	public static Element getRoot() {

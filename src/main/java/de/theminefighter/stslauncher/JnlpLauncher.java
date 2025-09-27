@@ -56,7 +56,7 @@ public class JnlpLauncher {
 		Element resources = (Element) root.getElementsByTagName("resources").item(0);
 		Element appDesc = (Element) root.getElementsByTagName("application-desc").item(0);
 		//load server addresses and other stuff from jnlp to system properties
-		List<File> jarsForLaunch = getJarsForLaunch(root.getAttribute("codebase"), resources);
+		List<File> jarsForLaunch = getJarsForLaunch(resources);
 		if (slf) {
 			LibManager.showLicenseFiles(jarsForLaunch);
 		}
@@ -141,12 +141,11 @@ public class JnlpLauncher {
 	/**
 	 * Prepares all jars from the jnlp and required libs for launch
 	 *
-	 * @param codebase  the codebase attribute of the jnlp
 	 * @param resources the resources element of the jnlp
 	 * @return A list of all jars needed for launch
 	 * @throws IOException something went wrong, probably whilst trying to cache the jars
 	 */
-	private static List<File> getJarsForLaunch(String codebase, Element resources) throws IOException {
+	private static List<File> getJarsForLaunch(Element resources) throws IOException {
 		ResourceCache cache = new SimpleCache();
 		//Old java Version still include all libs required
 		boolean oldJava = System.getProperty("java.version").startsWith("1.");
@@ -157,7 +156,7 @@ public class JnlpLauncher {
 		NodeList jars = resources.getElementsByTagName("jar");
 		for (int i = 0; i < jars.getLength(); i++) {
 			Element jar = (Element) jars.item(i);
-			URL href = new URL(codebase + "/" + jar.getAttribute("href"));
+			URL href = JavaUtilities.resolveHref(jar.getAttribute("href"));
 			File cached = cache.get(href, Flags.offline);
 			jarsToLoad.add(cached);
 		}
