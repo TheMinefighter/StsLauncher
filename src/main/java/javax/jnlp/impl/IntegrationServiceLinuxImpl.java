@@ -1,6 +1,7 @@
 package javax.jnlp.impl;
 
 
+import de.theminefighter.stslauncher.Flags;
 import de.theminefighter.stslauncher.JavaUtilities;
 import de.theminefighter.stslauncher.Main;
 
@@ -86,6 +87,7 @@ public class IntegrationServiceLinuxImpl implements IntegrationService, JnlpServ
 	 * @return whether a shortcut has been created
 	 */
     private boolean makeShortcut(String subMenu, boolean isMenu) {
+		if (Flags.disableShortcuts) return false;
 		File desktopFile = getDesktopFile(isMenu);
 		if (hasShortcut(isMenu)) return false;
 		String desktopFileContent = makeDeFString(subMenu);

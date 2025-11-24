@@ -21,4 +21,6 @@ public class Flags {
      * Whether to set the new JVM Process to verbose output
      */
     static final boolean verboseJVM = false;
+
+	public static final boolean disableShortcuts = true;
 }
