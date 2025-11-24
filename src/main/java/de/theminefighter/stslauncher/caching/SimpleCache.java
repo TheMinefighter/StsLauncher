@@ -36,6 +36,10 @@ public class SimpleCache implements ResourceCache {
 	}
 
 	private static Path getRootPath() {
+		String xdgDataHome = System.getenv("XDG_DATA_HOME");
+		if (xdgDataHome != null) {
+			return Paths.get(xdgDataHome, "StsLauncher");
+		}
 		Path basePath = Paths.get(System.getProperty("user.home"));
 		if (System.getProperty("os.name").contains("Linux"))
 			basePath = basePath.resolve(".local").resolve("share");
