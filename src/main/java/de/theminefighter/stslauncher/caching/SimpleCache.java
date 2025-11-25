@@ -32,7 +32,7 @@ public class SimpleCache implements ResourceCache {
 	 */
 	public SimpleCache() throws IOException {
 		cacheRoot = getRootPath();
-		if (!Files.exists(cacheRoot)) Files.createDirectory(cacheRoot.toAbsolutePath());
+		if (!Files.exists(cacheRoot)) Files.createDirectories(cacheRoot.toAbsolutePath());
 	}
 
 	private static Path getRootPath() {
