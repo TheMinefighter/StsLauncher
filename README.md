@@ -41,8 +41,6 @@ First of all the program arguments (jnlp file and possibly `--show-license-files
 Then the jnlp file will be parsed and the jars referenced in it will be cached.
 If executed on JREs > 1.8 a list of maven packages in `src/main/resources/de/theminefighter/stslauncher/MavenList.csv` will be cached an loaded into the new classpath.
 
-If executed on JREs > 1.8 a list of maven packages in 
-`src/main/resources/de/theminefighter/stslauncher/MavenList.csv` will be cached and loaded into the new classpath.
 If the `--show-license-files` option was used,
 all jar archives will be loaded and any license files in them will be printed to console.
 Then the arguments of the new JVM to be launched are being build, based on all of this.
