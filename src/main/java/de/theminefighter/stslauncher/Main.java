@@ -85,6 +85,7 @@ public class Main {
         System.out.println("Please enter the path of the jnlp to launch");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String str = reader.readLine();
+		str = str.replace("\"", "").replace("'", "").trim();
         if (str.length()==0) {
             System.out.println("No file provided. Exiting");
             return null;
