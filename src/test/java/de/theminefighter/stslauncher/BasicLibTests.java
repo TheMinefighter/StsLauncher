@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BasicLibTests {
     @Test
     public void checkLibUrls()  {
-        String req="https://repo.maven.apache.org/maven2/com/sun/xml/ws/rt/2.3.1/rt-2.3.1.jar";
+        String req="https://repo.maven.apache.org/maven2/com/sun/xml/ws/rt/2.3.7/rt-2.3.7.jar";
         assertTrue(Arrays.stream(LibManager.makeLibUrls()).map(URL::toString).anyMatch(req::equals));
     }
 }
