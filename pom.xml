@@ -6,7 +6,7 @@
 
     <groupId>de.theminefighter</groupId>
     <artifactId>StsLauncher</artifactId>
-    <version>1.2.3</version>
+    <version>1.2.4</version>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
