@@ -22,5 +22,5 @@ public class Flags {
      */
     static final boolean verboseJVM = false;
 
-	public static final boolean disableShortcuts = true;
+	public static final boolean disableShortcuts = false;
 }
