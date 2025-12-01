@@ -24,7 +24,8 @@ public class Main {
 		String jnlpPath = args[0];
 		System.setProperty("jnlpx.origFilenameArg", jnlpPath);
 		//Only now JWSContext may be loaded
-		URL jnlpUrl=new URL( JWSContext.getRoot().getAttribute("href"));
+		String href = JWSContext.getRoot().getAttribute("href");
+		URL jnlpUrl= JWSContext.resolveHref(href);
 		boolean launchedBefore=JWSContext.getCache().has(jnlpUrl);
 		if (!launchedBefore) {
 			createRequestedShortcuts();

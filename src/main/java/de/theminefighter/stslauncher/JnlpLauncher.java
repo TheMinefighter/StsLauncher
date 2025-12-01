@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,9 +53,6 @@ public class JnlpLauncher {
 	static String[] prepareLaunch(String jnlp, boolean slf) throws Exception {
 		//load jnlp structure
 		Element root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(jnlp)).getDocumentElement();
-		if (root.hasAttribute("codebase")) {
-			JavaUtilities.codebase = new URI(root.getAttribute("codebase"));
-		}
 		Element resources = (Element) root.getElementsByTagName("resources").item(0);
 		Element appDesc = (Element) root.getElementsByTagName("application-desc").item(0);
 		//load server addresses and other stuff from jnlp to system properties
@@ -160,7 +156,7 @@ public class JnlpLauncher {
 		NodeList jars = resources.getElementsByTagName("jar");
 		for (int i = 0; i < jars.getLength(); i++) {
 			Element jar = (Element) jars.item(i);
-			URL href = JavaUtilities.resolveHref(jar.getAttribute("href"));
+			URL href = JWSContext.resolveHref(jar.getAttribute("href"));
 			File cached = cache.get(href, Flags.offline);
 			jarsToLoad.add(cached);
 		}
