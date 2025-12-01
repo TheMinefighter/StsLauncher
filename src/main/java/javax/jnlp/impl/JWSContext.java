@@ -31,7 +31,11 @@ public class JWSContext {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		ini(System.getProperty("jnlpx.origFilenameArg"));
+		String jnlpfn = System.getProperty("jnlpx.origFilenameArg");
+		if (jnlpfn == null) {
+			throw new RuntimeException("jnlpx.origFilenameArg not set on classload, please file a bug report if you see this!");
+		}
+		ini(jnlpfn);
 	}
 
 	/**
