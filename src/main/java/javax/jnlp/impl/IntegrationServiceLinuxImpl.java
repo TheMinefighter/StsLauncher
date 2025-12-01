@@ -16,8 +16,8 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public class IntegrationServiceLinuxImpl implements IntegrationService, JnlpServiceImpl {
-	private static final String desktopFolder = "/Desktop/";
-	private static final String menuFolder = "/.local/share/applications/";
+	private static final String desktopFolder = System.getenv("XDG_DESKTOP_DIR")!=null?System.getenv("XDG_DESKTOP_DIR"): "~/Desktop/";
+	private static final String dataHome = System.getenv("XDG_DATA_HOME")!=null?System.getenv("XDG_DATA_HOME"): "~/.local/share/";
 	private static final String dePrefix = "stsLauncher.DesktopSc_";
 	private static final String mePrefix = "stsLauncher.MenuSc_";
 	private static final String fileType = ".desktop";
@@ -37,8 +37,8 @@ public class IntegrationServiceLinuxImpl implements IntegrationService, JnlpServ
      * @param menu whether to get the menu shortcut file
      */
 	private File getDesktopFile(boolean menu) {
-		return new File(System.getProperty("user.home"),
-				(menu ? (menuFolder + mePrefix):(desktopFolder + dePrefix)) + JWSContext.getIdentifier() + fileType);
+		File baseDir = menu ? new File(dataHome, "applications"): new File(desktopFolder);
+		return new File(baseDir, (menu?mePrefix:dePrefix)+ JWSContext.getIdentifier() + fileType);
 	}
 
 	@Override
