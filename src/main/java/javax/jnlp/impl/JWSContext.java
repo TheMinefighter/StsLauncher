@@ -114,4 +114,8 @@ public class JWSContext {
 			throw new RuntimeException(e);
 		}
 	}
+
+	public static String getAppName() {
+		return getInformation().getElementsByTagName("title").item(0).getFirstChild().getNodeValue();
+	}
 }
