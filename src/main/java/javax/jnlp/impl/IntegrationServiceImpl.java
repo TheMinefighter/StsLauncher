@@ -83,10 +83,14 @@ public abstract class IntegrationServiceImpl implements IntegrationService, Jnlp
      * @return an exec string to launch this jnlp
      */
 	protected String makeExec() {
+		return JavaUtilities.getJavaPath() +makeExecArgs();
+	}
+
+	protected static String makeExecArgs() {
 		if (JavaUtilities.isJar()) {
-			return String.format("%s -jar %s %s", JavaUtilities.getJavaPath(), JWSContext.getLocalStsLauncherJarPath(), JWSContext.getLocalJNLP());
+			return String.format(" -jar %s %s", JWSContext.getLocalStsLauncherJarPath(), JWSContext.getLocalJNLP());
 		} else {
-			return String.format("%s -cp %s %s %s", JavaUtilities.getJavaPath(), JavaUtilities.getStsLauncherLocation(), Main.class.getCanonicalName(), JWSContext.getLocalJNLP());
+			return String.format(" -cp %s %s %s", JavaUtilities.getStsLauncherLocation(), Main.class.getCanonicalName(), JWSContext.getLocalJNLP());
 		}
 	}
 }
