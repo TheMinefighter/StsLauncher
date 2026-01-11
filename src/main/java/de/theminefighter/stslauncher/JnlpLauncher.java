@@ -101,7 +101,8 @@ public class JnlpLauncher {
 	private static String makeCPString(List<File> jarsForLaunch) {
 		List<String> classPathParts = jarsForLaunch.stream().map(File::getPath).collect(Collectors.toList());
 		classPathParts.add(System.getProperty("java.class.path"));
-		return String.join(":", classPathParts);
+		String delimiter = System.getProperty("os.name").contains("Windows")?";":":";
+		return String.join(delimiter, classPathParts);
 	}
 
 	/**
