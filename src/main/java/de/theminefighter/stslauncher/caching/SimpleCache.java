@@ -40,7 +40,7 @@ public class SimpleCache implements ResourceCache {
 		if (System.getProperty("os.name").contains("Linux"))
 			basePath = basePath.resolve(".local").resolve("share");
 		else if (System.getProperty("os.name").contains("Windows")) {
-			basePath = basePath.resolve("AppData").resolve("Roaming");
+			basePath = Paths.get(System.getenv("APPDATA"));
 		}
 		return basePath.resolve("STSLauncher");
 	}
