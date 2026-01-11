@@ -1,6 +1,7 @@
 package javax.jnlp;
 
 import javax.jnlp.impl.IntegrationServiceLinuxImpl;
+import javax.jnlp.impl.IntegrationServiceWindowsImpl;
 import javax.jnlp.impl.JnlpServiceImpl;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,9 @@ public class ServiceManager {
 	static {
 		if (System.getProperty("os.name").contains("Linux"))
 			services.put("javax.jnlp.IntegrationService", new IntegrationServiceLinuxImpl());
+		else if (System.getProperty("os.name").contains("Windows")) {
+			services.put("javax.jnlp.IntegrationService", new IntegrationServiceWindowsImpl());
+		}
 	}
 
 	//Mocks jnlp so far that STS does not show graphical errors and no step further
