@@ -120,7 +120,6 @@ public class JnlpLauncher {
 		//filter jvm prop telling the jvm to start StsLauncher
 		launchProps.remove("java.class.path");
 		launchProps.put("file.encoding", "UTF-8");
-		launchProps.put("java.security.policy","/home/tobias/IdeaProjects/StsLauncher/src/main/resources/security.policy");
 		launchProps.put("jnlpx.origFilenameArg",jnlpPath);
 		URL policy;
 		try {
